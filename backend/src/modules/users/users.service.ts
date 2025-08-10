@@ -13,7 +13,6 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
     const created = new this.userModel(createUserDto);
     return created.save();
   }

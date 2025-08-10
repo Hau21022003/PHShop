@@ -58,14 +58,14 @@ export const RegisterBody = z
 
 export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
 
-export const RegisterSchema = z.object({
+export const RegisterRes = z.object({
   accessToken: z.string(),
   accessTokenExpiresAt: z.string(),
   refreshToken: z.string(),
   refreshTokenExpiresAt: z.string(),
   account: AccountSchema,
 });
-export const RegisterRes = createBaseResp(RegisterSchema);
+// export const RegisterRes = createBaseResp(RegisterSchema);
 export type RegisterResType = z.TypeOf<typeof RegisterRes>;
 
 export const LoginBody = z

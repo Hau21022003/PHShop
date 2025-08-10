@@ -28,7 +28,7 @@ export const createPaginationBody = <T extends z.ZodRawShape>(
   itemSchema: z.ZodObject<T>
 ) => PaginationBody.merge(itemSchema);
 
-export const PageMetaRes = z.object({
+export const PageMeta = z.object({
   total: z.number().default(0),
   pageNumber: z.number().default(1),
   pageSize: z.number().default(10),
@@ -36,14 +36,12 @@ export const PageMetaRes = z.object({
   hasNextPage: z.boolean().default(false),
   hasPrevPage: z.boolean().default(false),
 });
-export type PageMetaResType = z.TypeOf<typeof PageMetaRes>;
+export type PageMetaType = z.TypeOf<typeof PageMeta>;
 
 export const createPaginationRes = <T extends z.ZodTypeAny>(itemSchema: T) =>
-  BaseRes.extend({
-    data: z.object({
-      items: z.array(itemSchema),
-      pageMeta: PageMetaRes,
-    }),
+  z.object({
+    data: z.array(itemSchema),
+    total: z.number(),
   });
 
-export const defaultPageMeta: PageMetaResType = PageMetaRes.parse({});
+export const defaultPageMeta: PageMetaType = PageMeta.parse({});

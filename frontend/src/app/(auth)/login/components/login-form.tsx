@@ -41,11 +41,11 @@ export function LoginForm() {
       const result = await authApiRequest.login(values);
 
       await authApiRequest.auth({
-        sessionToken: result.payload.data.accessToken,
-        expiresAt: result.payload.data.accessTokenExpiresAt,
-        role: result.payload.data.account.role,
+        sessionToken: result.payload.accessToken,
+        expiresAt: result.payload.accessTokenExpiresAt,
+        role: result.payload.account.role,
       });
-      setUser(result.payload.data.account);
+      setUser(result.payload.account);
       router.push("/");
       router.refresh();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

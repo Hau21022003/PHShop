@@ -19,7 +19,7 @@ export default function SlideSession() {
           await authApiRequest.slideSessionFromNextClientToNextServer()
         localStorage.setItem(
           'sessionTokenExpiresAt',
-          res.payload.data.accessTokenExpiresAt
+          res.payload.accessTokenExpiresAt
         )
       }
     }, 1000 * 60 * 20)

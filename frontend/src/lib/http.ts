@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 
 type CustomOptions = Omit<RequestInit, "method"> & {
   baseUrl?: string | undefined;
+  responseType?: "json" | "blob" | "text";
 };
 
 const ENTITY_ERROR_STATUS = 422;
@@ -22,7 +23,7 @@ export const isClient = () => typeof window !== "undefined";
 const request = async <Response>(
   method: "GET" | "POST" | "PUT" | "DELETE",
   url: string,
-  options?: CustomOptions | undefined
+  options: CustomOptions = {}
 ) => {
   let body: FormData | string | undefined = undefined;
   if (options?.body instanceof FormData) {
@@ -66,10 +67,24 @@ const request = async <Response>(
     body,
     method,
   });
-  const payload: Response = await res.json();
+  // const payload: Response = await res.json();
+  // const data = {
+  //   status: res.status,
+  //   payload,
+  // };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let payload: any;
+  if (options?.responseType === "blob") {
+    payload = await res.blob();
+  } else if (options?.responseType === "text") {
+    payload = await res.text();
+  } else {
+    payload = await res.json();
+  }
+
   const data = {
     status: res.status,
-    payload,
+    payload: payload as Response,
   };
   // Interceptor là nời chúng ta xử lý request và response trước khi trả về cho phía component
   if (!res.ok) {
@@ -120,8 +135,7 @@ const request = async <Response>(
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient()) {
     if (["auth/signin"].some((item) => item === normalizePath(url))) {
-      const { accessToken, accessTokenExpiresAt } = (payload as LoginResType)
-        .data;
+      const { accessToken, accessTokenExpiresAt } = payload as LoginResType;
       localStorage.setItem("sessionToken", accessToken);
       localStorage.setItem("sessionTokenExpiresAt", accessTokenExpiresAt);
     } else if ("auth/logout" === normalizePath(url)) {

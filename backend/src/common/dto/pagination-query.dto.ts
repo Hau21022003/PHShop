@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsOptional, IsPositive, Min } from 'class-validator';
 
-export class PaginationDto {
+export class PaginationQueryDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsPositive()
