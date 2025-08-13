@@ -81,7 +81,30 @@ export type ProductWithCategoryType = z.TypeOf<typeof ProductWithCategory>;
 export const FindAllProduct = createPaginationRes(ProductWithCategory);
 export type FindAllProductType = z.TypeOf<typeof FindAllProduct>;
 
+export enum PriceFilter {
+  BELOW_200K = "BELOW_200K",
+  FROM_200K_TO_400K = "FROM_200K_TO_400K",
+  FROM_400K_TO_600K = "FROM_400K_TO_600K",
+  FROM_600K_TO_800K = "FROM_600K_TO_800K",
+  ABOVE_800K = "ABOVE_800K",
+}
+
+export enum SortBy {
+  FEATURED = "FEATURED",
+  NEWEST = "NEWEST",
+  PRICE_LOW_TO_HIGH = "PRICE_LOW_TO_HIGH",
+  PRICE_HIGH_TO_LOW = "PRICE_HIGH_TO_LOW",
+}
+
+export const Filter = z.object({
+  gender: z.enum(Gender).optional(),
+  categoryIds: z.array(z.string()),
+  price: z.array(z.enum(PriceFilter)),
+  sortBy: z.enum(SortBy).optional(),
+});
+export type FilterType = z.TypeOf<typeof Filter>;
+
 export const FindAllBody = createPaginationBody(
-  z.object({ search: z.string().optional() })
+  z.object({ search: z.string().optional(), filter: Filter.optional() })
 );
 export type FindAllBodyType = z.TypeOf<typeof FindAllBody>;

@@ -41,15 +41,22 @@ export default function ImageContainer({
     }
     setTimeout(checkScrollPosition, 100);
   };
-  const [selectedImage, setSelectedImage] = useState(
-    images.length ? images[0] : ""
+  const [selectedImageIndex, setSelectedImageIndex] = useState(
+    images.length ? 0 : -1
   );
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
 
+  useEffect(() => {
+    if (selectedImageIndex === -1 && images.length > 0) {
+      setSelectedImageIndex(0);
+    }
+  }, [images]);
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const oldImagesLength = images.length;
     const selectedFiles = event.target.files;
     if (selectedFiles && selectedFiles.length > 0) {
       const fileArray = Array.from(selectedFiles);
@@ -57,11 +64,20 @@ export default function ImageContainer({
         file.type.startsWith("image/")
       );
       try {
-        const formData = new FormData();
-        formData.append("image", imageFiles[0]);
-        const uploadRsp = await productApiRequest.uploadImage(formData);
-        handleAddImage(uploadRsp.payload.imageUrl);
-        setSelectedImage(uploadRsp.payload.imageUrl);
+        const uploadPromises = imageFiles.map(async (file): Promise<string> => {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          const uploadRsp = await productApiRequest.uploadImage(formData);
+          handleAddImage(uploadRsp.payload.imageUrl);
+          return uploadRsp.payload.imageUrl;
+        });
+
+        const uploadedUrls: string[] = await Promise.all(uploadPromises);
+
+        if (uploadedUrls.length > 0) {
+          setSelectedImageIndex(oldImagesLength + uploadedUrls.length - 1);
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         handleErrorApi({ error });
@@ -70,6 +86,7 @@ export default function ImageContainer({
   };
 
   const replaceImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (selectedImageIndex === -1) return;
     const selectedFiles = event.target.files;
     if (selectedFiles && selectedFiles.length > 0) {
       const fileArray = Array.from(selectedFiles);
@@ -80,8 +97,11 @@ export default function ImageContainer({
         const formData = new FormData();
         formData.append("image", imageFiles[0]);
         const uploadRsp = await productApiRequest.uploadImage(formData);
-        handleReplaceImage(selectedImage, uploadRsp.payload.imageUrl);
-        setSelectedImage(uploadRsp.payload.imageUrl);
+        handleReplaceImage(
+          images[selectedImageIndex],
+          uploadRsp.payload.imageUrl
+        );
+        // setSelectedImageIndex(uploadRsp.payload.imageUrl);
         // handleAddImage(uploadRsp.payload.imageUrl);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
@@ -90,31 +110,46 @@ export default function ImageContainer({
     }
   };
 
+  const removeImage = () => {
+    if (selectedImageIndex === -1) return;
+    const lengthImage = images.length;
+    handleRemoveImage(images[selectedImageIndex]);
+
+    if (lengthImage === 1) {
+      setSelectedImageIndex(-1);
+    } else {
+      setSelectedImageIndex((prev) =>
+        selectedImageIndex === lengthImage - 1 ? prev - 1 : prev
+      );
+    }
+    // else setSelectedImageIndex(images.length ? images[0] : "");
+  };
+
   return (
     <div className="p-4 border-2 bg-gray-50 border-gray-200 rounded-md space-y-4">
       <div className="w-full aspect-square overflow-hidden rounded-md bg-gray-200 relative group">
         {/* Ảnh */}
-        {selectedImage !== "" && (
+        {selectedImageIndex !== -1 && (
           <img
-            src={selectedImage}
+            src={images[selectedImageIndex]}
             alt=""
             className="w-full h-full object-cover border-none"
           />
         )}
 
-        {selectedImage === "" && (
+        {selectedImageIndex === -1 && (
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <ImagePlus className="stroke-2 w-10 h-10 text-blue-500"/>
+            <ImagePlus className="stroke-2 w-10 h-10 text-blue-500" />
           </div>
         )}
 
         {/* Overlay đen mờ khi hover */}
-        {selectedImage && (
+        {selectedImageIndex >= 0 && (
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
         )}
 
         {/* Nút ở giữa */}
-        {selectedImage && (
+        {selectedImageIndex >= 0 && (
           <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
             <button
               type="button"
@@ -132,11 +167,12 @@ export default function ImageContainer({
             />
             <button
               type="button"
-              onClick={() => {
-                handleRemoveImage(selectedImage);
-                if (images.length <= 1) setSelectedImage("");
-                else setSelectedImage(images.length ? images[0] : "");
-              }}
+              // onClick={() => {
+              //   handleRemoveImage(selectedImage);
+              //   if (images.length <= 1) setSelectedImage("");
+              //   else setSelectedImage(images.length ? images[0] : "");
+              // }}
+              onClick={removeImage}
               className="px-3 py-1 bg-red-600 text-white rounded-md text-sm shadow hover:bg-red-700"
             >
               Remove
@@ -152,7 +188,7 @@ export default function ImageContainer({
         >
           {images.map((src, index) => (
             <div
-              onClick={() => setSelectedImage(src)}
+              onClick={() => setSelectedImageIndex(index)}
               key={index}
               className="w-[calc(25%-12px)] cursor-pointer aspect-square overflow-hidden rounded-md bg-gray-100 shrink-0"
             >
@@ -177,6 +213,7 @@ export default function ImageContainer({
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
+            multiple
           />
         </div>
         {showLeft && (

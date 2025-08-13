@@ -25,6 +25,7 @@ import { ExcelHelper } from 'src/common/helper/excel.helper';
 import { Response } from 'express';
 import { PaginationResultDto } from 'src/common/dto/pagination-result.dto';
 import { Product } from 'src/modules/product/schema/product.schema';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('product')
 export class ProductController {
@@ -35,6 +36,7 @@ export class ProductController {
     return this.productService.create(createProductDto);
   }
 
+  @Public()
   @Post('find-all')
   async findAll(@Body() dto: FindAllDto) {
     const { items, total } = await this.productService.findAll(dto);
@@ -64,6 +66,7 @@ export class ProductController {
     );
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productService.findOne(id);

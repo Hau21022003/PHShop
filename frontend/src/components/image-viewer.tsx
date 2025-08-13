@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -23,6 +24,7 @@ const ImageViewer = () => {
     >
       <img
         src={src}
+        alt=""
         className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-xl"
       />
     </div>,

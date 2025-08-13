@@ -36,6 +36,7 @@ import { productApiRequest } from "@/api-requests/product";
 import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
 import { useSearchParams } from "next/navigation";
 import { buildPaginatedMeta } from "@/utils/pagination";
+import { closeLoading, showLoading } from "@/components/loading-overlay";
 
 export default function ProductListPage() {
   const [products, setProducts] = useState<ProductWithCategoryType[]>([]);
@@ -48,6 +49,7 @@ export default function ProductListPage() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const loadProducts = async () => {
+    showLoading();
     try {
       const findAllRsp = await productApiRequest.findAll({
         pageNumber: pageMeta.pageNumber,
@@ -66,6 +68,8 @@ export default function ProductListPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({ error });
+    } finally {
+      closeLoading();
     }
   };
   useEffect(() => {
@@ -201,22 +205,31 @@ export default function ProductListPage() {
         </div>
         {/* Table */}
         <div className="p-2 bg-gray-50 rounded-lg">
-          <Table className="text-gray-500 overflow-hidden border-collapse">
+          <Table className="table-fixed sm:table-auto text-gray-500 overflow-hidden border-collapse">
             <TableHeader>
               <TableRow className="bg-gray-200 border-none">
-                <TableHead className="font-normal text-gray-600 tracking-wider uppercase pl-4 rounded-tl-md rounded-bl-md">
+                <TableHead
+                  className="font-normal text-gray-600 tracking-wider uppercase pl-4 rounded-tl-md rounded-bl-md sm:w-auto
+                  w-[74%]   /* mặc định điện thoại */
+                  md:w-[40%] md:min-w-[300px] /* màn hình >= 768px */"
+                >
                   Item name
                 </TableHead>
-                <TableHead className="font-normal text-gray-600 tracking-wider uppercase">
+                <TableHead className="font-normal text-gray-600 tracking-wider uppercase hidden sm:table-cell">
                   Price
                 </TableHead>
-                <TableHead className="font-normal text-gray-600 tracking-wider uppercase">
+                <TableHead className="font-normal text-gray-600 tracking-wider uppercase hidden md:table-cell">
                   Stock
                 </TableHead>
-                <TableHead className="font-normal text-gray-600 tracking-wider uppercase">
+                <TableHead className="font-normal text-gray-600 tracking-wider uppercase hidden lg:table-cell">
                   Rating
                 </TableHead>
-                <TableHead className="font-normal text-gray-600 tracking-wider uppercase rounded-tr-md rounded-br-md"></TableHead>
+                <TableHead
+                  className="font-normal text-gray-600 tracking-wider uppercase rounded-tr-md rounded-br-md
+                  sm:w-auto w-[26%]
+                  "
+                  // style={{ width: "20px" }}
+                ></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="text-base">
@@ -229,8 +242,8 @@ export default function ProductListPage() {
                         : ""
                     }`}
                   >
-                    <TableCell className="py-4 pl-4">
-                      <div className="flex items-center gap-2 text-black">
+                    <TableCell className="py-4 pl-4 min-w-0 max-w-0 sm:w-auto">
+                      <div className="flex md:items-center items-start gap-2 text-black">
                         <img
                           src={
                             product.images.length > 0 ? product.images[0] : ""
@@ -238,17 +251,41 @@ export default function ProductListPage() {
                           alt=""
                           className="w-14 h-14 object-cover rounded-md"
                         />
-                        <div className="max-w-80">
-                          <p className="font-medium truncate">{product.name}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate text-base">
+                            {product.name}
+                          </p>
                           {product.category && (
                             <p className="text-gray-500 text-sm truncate">
                               {product.category.name}
                             </p>
                           )}
+
+                          {/* Mobile-only info */}
+                          <div className="sm:hidden mt-1 space-y-1">
+                            <div className="flex items-center gap-1 text-base">
+                              <span className="text-black font-medium">
+                                {product.price.toLocaleString("vi-VN")}đ
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                              <span>{product.quantity} left</span>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <FontAwesomeIcon
+                                  icon={faStar}
+                                  size="sm"
+                                  className="text-orange-500"
+                                />
+                                <span>4.6</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4">
+                    {/* Desktop columns */}
+                    <TableCell className="py-4 hidden sm:table-cell">
                       <div className="flex items-center gap-1">
                         <p className="text-black">
                           {product.price.toLocaleString("vi-VN")}{" "}
@@ -256,7 +293,7 @@ export default function ProductListPage() {
                         <p className="font-medium text-gray-400">đ</p>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-4 hidden md:table-cell">
                       <div className="">
                         <p>
                           <span className="text-black">
@@ -269,7 +306,7 @@ export default function ProductListPage() {
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-4 hidden lg:table-cell">
                       <div className="flex items-center gap-1">
                         <FontAwesomeIcon
                           icon={faStar}
@@ -279,7 +316,7 @@ export default function ProductListPage() {
                         <p className="text-gray-400 ml-2">41 reviews</p>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-4 w-20">
                       <div className="flex items-center gap-4">
                         <Link href={`/admin/save-product/${product._id}`}>
                           <FontAwesomeIcon

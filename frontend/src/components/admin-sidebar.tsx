@@ -53,20 +53,52 @@ const AdminSidebar = () => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const MainMenuOptions = [
+    {
+      icon: <Package className="w-6 h-6" />,
+      label: "Product",
+      url: "/admin/product-list",
+      active: pathname.includes("product"),
+    },
+    {
+      icon: <ClipboardList className="w-6 h-6" />,
+      label: "Category",
+      url: "/admin/category",
+      active: pathname == "/admin/category",
+    },
+    {
+      icon: <ShoppingBag className="w-6 h-6" />,
+      label: "Order",
+      url: "/admin/order",
+      active: pathname == "/admin/order",
+    },
+  ];
+
+  const GeneralMenUOptions = [
+    {
+      icon: <MessageCircleMore className="w-6 h-6" />,
+      label: "Message",
+      url: "/admin/message",
+      active: pathname == "/admin/message",
+    },
+    {
+      icon: <StarHalf className="w-6 h-6" />,
+      label: "Feedback",
+      url: "/admin/feedback",
+      active: pathname == "/admin/feedback",
+    },
+  ];
+
   return (
     <aside
-      className={`h-full ${
-        isCollapsed ? "w-20" : "w-64"
-      } bg-gray-100 text-black flex flex-col p-4 transition-all duration-300`}
+      className={`lg:h-full w-full ${
+        isCollapsed ? "w-20" : "lg:w-64"
+      } lg:bg-gray-100 text-black lg:flex lg:flex-col p-4 transition-all duration-300`}
     >
       {/* Logo */}
       <div className="flex items-center justify-between gap-4 mt-2 mb-8">
         {!isCollapsed && (
           <div className="flex items-center gap-3">
-            {/* <div className="bg-gradient-to-tr from-orange-400 to-orange-600 p-1.5 rounded-xl shadow-[inset_0_0_12px_rgba(255,115,0,0.6)] text-white">
-              <Image src="/logo-white.svg" alt="Logo" width={32} height={32} />
-            </div> */}
-            {/* <h1 className="text-xl font-medium tracking-wider">Chatbot</h1> */}
             {!isCollapsed && (
               <h1 className="text-xl font-medium tracking-wider">Anna Shop</h1>
             )}
@@ -74,13 +106,13 @@ const AdminSidebar = () => {
         )}
         <div
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer"
+          className="lg:block hidden px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer"
         >
           {isCollapsed ? <PanelRightClose /> : <PanelLeftClose />}
         </div>
       </div>
       <div
-        className="flex-1 flex flex-col justify-between overflow-y-auto"
+        className="flex-1 flex flex-col justify-between lg:overflow-y-auto"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -90,58 +122,29 @@ const AdminSidebar = () => {
         <div className="space-y-3">
           <p className="text-sm text-gray-500">Main menu</p>
           <nav className="flex flex-col gap-3">
-            <SidebarItem
-              icon={<Package className="w-6 h-6" />}
-              label="Product"
-              url="/admin/product-list"
-              active={pathname.includes("product")}
-              isCollapsed={isCollapsed}
-            />
-            <SidebarItem
-              icon={<ClipboardList className="w-6 h-6" />}
-              label="Category"
-              url="/admin/category"
-              active={pathname == "/admin/category"}
-              isCollapsed={isCollapsed}
-            />
-            <SidebarItem
-              icon={<PackageSearch className="w-6 h-6" />}
-              label="Inventory"
-              url="/admin/inventory"
-              active={pathname == "/admin/inventory"}
-              isCollapsed={isCollapsed}
-            />
-            <SidebarItem
-              icon={<Ticket className="w-6 h-6" />}
-              label="Sales"
-              url="/admin/sales"
-              active={pathname == "/admin/sales"}
-              isCollapsed={isCollapsed}
-            />
-            <SidebarItem
-              icon={<ShoppingBag className="w-6 h-6" />}
-              label="Order"
-              url="/admin/order"
-              active={pathname == "/admin/order"}
-              isCollapsed={isCollapsed}
-            />
+            {MainMenuOptions.map((item) => (
+              <SidebarItem
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                url={item.url}
+                active={item.active}
+                isCollapsed={isCollapsed}
+              />
+            ))}
           </nav>
           <p className="text-sm text-gray-500 mt-6">General</p>
           <nav className="flex flex-col gap-3">
-            <SidebarItem
-              icon={<MessageCircleMore className="w-6 h-6" />}
-              label="Message"
-              url="/admin/message"
-              active={pathname == "/admin/message"}
-              isCollapsed={isCollapsed}
-            />
-            <SidebarItem
-              icon={<StarHalf className="w-6 h-6" />}
-              label="Feedback"
-              url="/admin/feedback"
-              active={pathname == "/admin/feedback"}
-              isCollapsed={isCollapsed}
-            />
+            {GeneralMenUOptions.map((item) => (
+              <SidebarItem
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                url={item.url}
+                active={item.active}
+                isCollapsed={isCollapsed}
+              />
+            ))}
           </nav>
         </div>
       </div>

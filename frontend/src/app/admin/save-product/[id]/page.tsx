@@ -103,24 +103,25 @@ export default function SaveProductPage() {
     }
   }, [editor, isLoaded]);
 
-  const images = useWatch({ control, name: "images" });
-
   const handleAddImage = (url: string) => {
-    form.setValue("images", [...images, url]);
+    const currentImages = form.getValues("images") || [];
+    form.setValue("images", [...currentImages, url]);
   };
 
   const handleRemoveImage = (url: string) => {
-    const index = images?.lastIndexOf(url);
-    const newImages = [...images];
+    const currentImages = form.getValues("images") || [];
+    const index = currentImages?.lastIndexOf(url);
+    const newImages = [...currentImages];
     newImages.splice(index, 1);
     form.setValue("images", newImages);
   };
 
   const handleReplaceImage = (oldUrl: string, newUrl: string) => {
-    const index = images?.lastIndexOf(oldUrl);
+    const currentImages = form.getValues("images") || [];
+    const index = currentImages?.lastIndexOf(oldUrl);
     if (index === -1 || index === undefined) return;
 
-    const newImages = [...images];
+    const newImages = [...currentImages];
     newImages[index] = newUrl;
     form.setValue("images", newImages);
   };
@@ -140,6 +141,7 @@ export default function SaveProductPage() {
     }).format(value);
 
   const onSubmit = async (data: ProductBodyType) => {
+    console.log("submit", data)
     try {
       if (isEdit && productId) productApiRequest.update(productId, data);
       else await productApiRequest.add(data);
@@ -153,8 +155,7 @@ export default function SaveProductPage() {
   };
 
   const saveDraft = () => {
-    const data = form.getValues();
-    console.log("saveDraft", data);
+    console.log(form.getValues());
   };
 
   const handleFileChange = async (
@@ -375,7 +376,7 @@ export default function SaveProductPage() {
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                             className="flex items-center gap-6"
                           >
                             <FormItem className="flex items-center gap-3">
@@ -536,7 +537,7 @@ export default function SaveProductPage() {
               <div className="space-y-2">
                 <p className="text-base font-medium">Product Images</p>
                 <ImageContainer
-                  images={images}
+                  images={watch("images")}
                   handleAddImage={handleAddImage}
                   handleRemoveImage={handleRemoveImage}
                   handleReplaceImage={handleReplaceImage}

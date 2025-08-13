@@ -1,5 +1,6 @@
 "use client";
 import { AccountResType } from "@/schemas/account.schema";
+import { authStorage } from "@/utils/auth-storage";
 import {
   createContext,
   useCallback,
@@ -40,9 +41,12 @@ export default function AppProvider({
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = Boolean(user);
   const setUser = useCallback(
+    // (user: User | null) => {
     (user: User | null) => {
       setUserState(user);
-      localStorage.setItem("user", JSON.stringify(user));
+      // localStorage.setItem("user", JSON.stringify(user));
+      if (user) authStorage.saveUser(user);
+      else authStorage.clear();
     },
     [setUserState]
   );
@@ -53,8 +57,11 @@ export default function AppProvider({
   // }, [setUserState]);
   useEffect(() => {
     try {
-      const _user = localStorage.getItem("user");
-      setUserState(_user ? JSON.parse(_user) : null);
+      // const _user = localStorage.getItem("user");
+      // setUserState(_user ? JSON.parse(_user) : null);
+      // console.log("user-test", user);
+      const _user = authStorage.getUser();
+      setUserState(_user || null);
     } catch (error) {
       console.error("Error parsing user data:", error);
       setUserState(null);

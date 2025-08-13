@@ -8,6 +8,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from 'src/modules/category/schema/category.schema';
 import { Model } from 'mongoose';
+import { FindAllDto, Status } from 'src/modules/category/dto/find-all.dto';
 
 @Injectable()
 export class CategoryService {
@@ -26,8 +27,54 @@ export class CategoryService {
     return created.save();
   }
 
-  findAll() {
-    return this.categoryModel.find().lean().exec();
+  // findAll(dto: FindAllDto) {
+  //   const filter: Record<string, any> = dto.search
+  //     ? { name: { $regex: dto.search, $options: 'i' } }
+  //     : {};
+  //   if (dto.status !== Status.ALL) {
+  //     filter.active = dto.status === Status.ACTIVE;
+  //   }
+  //   return this.categoryModel
+  //     .find(filter)
+  //     .sort({ createdAt: -1 })
+  //     .lean()
+  //     .exec();
+  // }
+
+  findAll(dto: FindAllDto) {
+    const matchStage: Record<string, any> = dto.search
+      ? { name: { $regex: dto.search, $options: 'i' } }
+      : {};
+
+    if (dto.status !== Status.ALL) {
+      matchStage.active = dto.status === Status.ACTIVE;
+    }
+
+    return this.categoryModel
+      .aggregate([
+        { $match: matchStage },
+        {
+          $lookup: {
+            from: 'products', // collection name của Product
+            localField: '_id',
+            foreignField: 'category',
+            pipeline: [
+              { $count: 'count' }, // chỉ đếm số lượng, không lấy dữ liệu
+            ],
+            as: 'productCountArr',
+          },
+        },
+        {
+          $addFields: {
+            productQuantity: {
+              $ifNull: [{ $arrayElemAt: ['$productCountArr.count', 0] }, 0],
+            },
+          },
+        },
+        { $project: { productCountArr: 0 } },
+        { $sort: { createdAt: -1 } },
+      ])
+      .exec();
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {

@@ -55,6 +55,7 @@ export default function CategoryContainer({ form }: CategoryContainerProps) {
     resolver: zodResolver(AddCategoryBody),
     defaultValues: {
       name: "",
+      active: true,
     },
   });
   const addCategory = async (data: AddCategoryBodyType) => {

@@ -164,28 +164,33 @@ export default function VariantContainer({ form }: VariantContainerProps) {
     } else {
       newVariantList = [...variantList, data];
     }
-    // const newVariantList = [...variantList, data];
-    // setVariantList(newVariantList);
     variantStructureReplace(newVariantList);
 
     const variantCombinations = generateVariantCombinations(newVariantList);
-    // console.log("variantCombinations", variantCombinations);
+    const oldVariants = watch("variants");
     const newFormVariants: ProductBodyType["variants"] =
-      variantCombinations.map((item) => ({
-        attributes: item,
-        price: price || 0,
-        quantity: 0,
-      }));
+      variantCombinations.map((variantCombination) => {
+        const oldVariant = oldVariants?.findLast((oldVariant) =>
+          oldVariant.attributes.every((attribute1) =>
+            variantCombination.some(
+              (attribute2) =>
+                attribute2.option === attribute1.option &&
+                attribute2.title === attribute1.title
+            )
+          )
+        );
+
+        return {
+          attributes: variantCombination,
+          price: oldVariant?.price || price || 0,
+          quantity: watch("quantity") || 0,
+          image: oldVariant?.image,
+        };
+      });
     variantReplace(newFormVariants || []);
 
     handleCloseDialog();
   };
-
-  // Test
-  useEffect(() => {
-    console.log("fields", variantFields);
-    console.log("form", form.getValues());
-  }, [variantFields, form]);
 
   const handleOpenDialog = (mode?: "open" | "edit", editIndex?: number) => {
     setVariantDialogState({ open: true, isEdit: mode === "edit", editIndex });

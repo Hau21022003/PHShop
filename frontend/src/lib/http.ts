@@ -7,6 +7,7 @@ import {
 } from "@/lib/error";
 import { normalizePath } from "@/lib/format";
 import { LoginResType } from "@/schemas/auth.schema";
+import { authStorage } from "@/utils/auth-storage";
 import { redirect } from "next/navigation";
 
 type CustomOptions = Omit<RequestInit, "method"> & {
@@ -40,7 +41,8 @@ const request = async <Response>(
           "Content-Type": "application/json",
         };
   if (isClient()) {
-    const sessionToken = localStorage.getItem("sessionToken");
+    // const sessionToken = localStorage.getItem("sessionToken");
+    const sessionToken = authStorage.getSessionToken()?.sessionToken;
     if (sessionToken) {
       baseHeaders.Authorization = `Bearer ${sessionToken}`;
     }
@@ -114,8 +116,9 @@ const request = async <Response>(
             await clientLogoutRequest;
           } catch {
           } finally {
-            localStorage.removeItem("sessionToken");
-            localStorage.removeItem("sessionTokenExpiresAt");
+            // localStorage.removeItem("sessionToken");
+            // localStorage.removeItem("sessionTokenExpiresAt");
+            authStorage.clear();
             clientLogoutRequest = null;
             location.href = "/login";
           }
@@ -136,11 +139,16 @@ const request = async <Response>(
   if (isClient()) {
     if (["auth/signin"].some((item) => item === normalizePath(url))) {
       const { accessToken, accessTokenExpiresAt } = payload as LoginResType;
-      localStorage.setItem("sessionToken", accessToken);
-      localStorage.setItem("sessionTokenExpiresAt", accessTokenExpiresAt);
+      // localStorage.setItem("sessionToken", accessToken);
+      // localStorage.setItem("sessionTokenExpiresAt", accessTokenExpiresAt);
+      authStorage.saveSessionToken({
+        sessionToken: accessToken,
+        expiresAt: accessTokenExpiresAt,
+      });
     } else if ("auth/logout" === normalizePath(url)) {
-      localStorage.removeItem("sessionToken");
-      localStorage.removeItem("sessionTokenExpiresAt");
+      // localStorage.removeItem("sessionToken");
+      // localStorage.removeItem("sessionTokenExpiresAt");
+      localStorage.clear();
     }
   }
   return data;

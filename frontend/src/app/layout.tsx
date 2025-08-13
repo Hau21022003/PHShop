@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import AppProvider from "@/app/app-provider";
 import SlideSession from "@/components/slide-session";
 import ImageViewer from "@/components/image-viewer";
+import LoadingOverlay from "@/components/loading-overlay";
 
 const roboto = Roboto({ subsets: ["vietnamese"] });
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={`${roboto.className} h-dvh overflow-hidden`}>
         <Toaster richColors position="top-right" />
         <ImageViewer />
+        <LoadingOverlay />
         {/* {children} */}
         <AppProvider>
           {children}
