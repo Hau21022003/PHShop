@@ -159,7 +159,7 @@ export default function CategoryPage() {
                         Quantity: {category.productQuantity}
                       </p>
                       <p className="text-sm text-gray-500">
-                        Created date {formatDateShort(category.createdAt)}
+                        Created date: {formatDateShort(category.createdAt)}
                       </p>
                     </div>
                   </TableCell>

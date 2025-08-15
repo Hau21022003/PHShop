@@ -12,6 +12,7 @@ export class AppService {
   constructor(private readonly productService: ProductService) {}
 
   @Cron('0 0 * * *') // Oh
+  // @Cron('* * * * *')
   async handleCleanup() {
     this.logger.log('Bắt đầu dọn dẹp ảnh không sử dụng...');
 
@@ -20,7 +21,7 @@ export class AppService {
       ? fs.readdirSync(this.uploadDir)
       : [];
 
-    // 2. Lấy tất cả ảnh đang dùng từ database
+    // 2. Lấy tất cả ảnh đang dùng từ database 
     const products = await this.productService.find();
     const usedFiles = new Set<string>();
 
@@ -28,8 +29,9 @@ export class AppService {
       const allImageUrls = [
         ...(product.images || []),
         ...(product.descriptionImages || []),
-        ...(product.variants?.map((v) => v.image) || []),
       ];
+
+      // console.log('allImageUrls', allImageUrls);
 
       allImageUrls.forEach((url) => {
         const filename = path.basename(url);

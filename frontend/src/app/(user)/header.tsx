@@ -1,26 +1,31 @@
 "use client";
-
 import Link from "next/link";
 import { useState } from "react";
 import { Heart, Menu, ShoppingBag, User } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/app/app-provider";
+import { Gender } from "@/schemas/product.schema";
 
 export default function UserHeader() {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAppContext();
 
   const menuItems = [
-    { label: "All", href: "/product-list?gender=women,men" },
-    { label: "Men", href: "/product-list?gender=men" },
-    { label: "Women", href: "/product-list?gender=women" },
+    { label: "All", href: "/product-list" },
+    { label: "Men", href: `/product-list?gender=${Gender.MALE}` },
+    { label: "Women", href: `/product-list?gender=${Gender.FEMALE}` },
     { label: "Sale", href: "/product-list?sale=true" },
   ];
 
   return (
     <header className="border-b bg-white">
-      <div className="container max-w-[1200px] mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container max-w-[1200px] mx-auto flex h-16 items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold">
           Anna Shop
@@ -40,22 +45,45 @@ export default function UserHeader() {
         </nav>
 
         <nav className="flex items-center gap-6">
-          <Link href={""} className="flex flex-col items-center cursor-pointer">
-            <div className="relative">
-              <ShoppingBag className="w-6 h-6" />
-              <p className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-orange-500">
-                45
-              </p>
-            </div>
-          </Link>
-          <Link href={""} className="flex flex-col items-center cursor-pointer">
-            <div className="relative">
-              <Heart className="w-6 h-6" />
-              <p className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-orange-500">
-                45
-              </p>
-            </div>
-          </Link>
+          {/* Cart */}
+          <HoverCard>
+            <HoverCardTrigger>
+              <Link
+                href={""}
+                className="flex flex-col items-center cursor-pointer"
+              >
+                <div className="relative">
+                  <ShoppingBag className="w-6 h-6" />
+                  <p className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-orange-500">
+                    45
+                  </p>
+                </div>
+              </Link>
+            </HoverCardTrigger>
+            <HoverCardContent>
+              The React Framework – created and maintained by @vercel.
+            </HoverCardContent>
+          </HoverCard>
+          {/* Favourite */}
+          <HoverCard>
+            <HoverCardTrigger>
+              <Link
+                href={""}
+                className="flex flex-col items-center cursor-pointer"
+              >
+                <div className="relative">
+                  <Heart className="w-6 h-6" />
+                  <p className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-orange-500">
+                    45
+                  </p>
+                </div>
+              </Link>
+            </HoverCardTrigger>
+            <HoverCardContent>
+              The React Framework – created and maintained by @vercel.
+            </HoverCardContent>
+          </HoverCard>
+
           <Link
             href={!isAuthenticated ? "/login" : "profile"}
             className="flex flex-col items-center cursor-pointer"

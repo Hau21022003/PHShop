@@ -5,6 +5,7 @@ import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface ProductItemProps {
   product: ProductWithCategoryType;
@@ -22,24 +23,12 @@ export default function ProductItem({ product }: ProductItemProps) {
     }).format(priceDiscount);
   };
   return (
-    <div className="w-full flex flex-col gap-2 items-center">
-      {/* <div className="relative group">
-        <img
-          className="w-full aspect-square object-cover cursor-pointer"
-          src={product.images.length > 0 ? product.images[0] : ""}
-          alt=""
-        />
-        <div className="cursor-pointer font-bold whitespace-nowrap text-xl absolute bottom-0 left-1/2 -translate-x-1/2 bg-orange-500 bg-opacity-80 text-white py-2 px-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          BUY NOW
-        </div>
-        <button className="cursor-pointer absolute bottom-1 right-2">
-          <FontAwesomeIcon
-            icon={faHeartRegular}
-            className="text-orange-500 w-20 h-20"
-            size="2x"
-          />
-        </button>
-      </div> */}
+    <div
+      className="w-full flex flex-col gap-2 items-center"
+      onClick={() => {
+        redirect(`/product-detail/${product._id}`);
+      }}
+    >
       <div className="relative group">
         {/* Ảnh 1 */}
         <img

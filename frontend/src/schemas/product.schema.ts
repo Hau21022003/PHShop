@@ -31,8 +31,12 @@ export const ProductBody = z.object({
   variantStructure: z.array(
     z.object({
       title: z.string().min(1, "Title not empty"),
+      enableImage: z.boolean().optional(),
       options: z.array(
-        z.object({ option: z.string().min(1, "Option not empty") })
+        z.object({
+          option: z.string().min(1, "Option not empty"),
+          image: z.string().optional(),
+        })
       ),
     })
   ),
@@ -101,6 +105,7 @@ export const Filter = z.object({
   categoryIds: z.array(z.string()),
   price: z.array(z.enum(PriceFilter)),
   sortBy: z.enum(SortBy).optional(),
+  sale: z.boolean().optional(),
 });
 export type FilterType = z.TypeOf<typeof Filter>;
 
@@ -108,3 +113,6 @@ export const FindAllBody = createPaginationBody(
   z.object({ search: z.string().optional(), filter: Filter.optional() })
 );
 export type FindAllBodyType = z.TypeOf<typeof FindAllBody>;
+
+export const ProductDetail = ProductWithCategory;
+export type ProductDetailType = z.TypeOf<typeof ProductDetail>;

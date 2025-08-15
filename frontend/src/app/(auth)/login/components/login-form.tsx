@@ -11,7 +11,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { LoginBody, LoginBodyType } from "@/schemas/auth.schema";
 import Image from "next/image";
@@ -55,6 +55,10 @@ export function LoginForm() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    router.prefetch("/");
+  }, [router]);
 
   const forgotPassword = async () => {
     const email = form.getValues("email");

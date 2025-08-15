@@ -1,5 +1,5 @@
 "use client";
-import AdminSidebar from "@/components/admin-sidebar";
+import AdminSidebar from "@/app/admin/admin-sidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useState } from "react";

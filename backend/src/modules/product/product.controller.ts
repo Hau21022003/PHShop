@@ -72,6 +72,12 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
+  @Public()
+  @Get(':id/product-detail')
+  getProductDetail(@Param('id') id: string) {
+    return this.productService.getProductDetail(id);
+  }
+
   @Put(':id/active')
   async updateActive(@Param('id') id: string, @Body('active') active: boolean) {
     return this.productService.setActive(id, active);

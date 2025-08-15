@@ -141,7 +141,7 @@ export default function SaveProductPage() {
     }).format(value);
 
   const onSubmit = async (data: ProductBodyType) => {
-    console.log("submit", data)
+    console.log("submit", data);
     try {
       if (isEdit && productId) productApiRequest.update(productId, data);
       else await productApiRequest.add(data);
@@ -218,6 +218,7 @@ export default function SaveProductPage() {
               </button>
             </div>
           </div>
+          {/* Main Form */}
           <div className="mt-6 flex flex-col gap-6 md:flex-row md:gap-4 items-stretch h-full">
             <div className="w-full md:w-3/5 space-y-6">
               {/* General Infomation */}
@@ -413,7 +414,7 @@ export default function SaveProductPage() {
               </div>
 
               {/* Price and stock */}
-              <div className="space-y-2">
+              <div className="space-y-2 sm:mb-6">
                 <p className="text-base font-medium">Price And Stock</p>
                 <div className="bg-gray-50 p-4 border-2 border-gray-200 rounded-md space-y-4">
                   <div className="flex flex-col gap-6 md:flex-row items-start md:gap-3">
@@ -526,10 +527,10 @@ export default function SaveProductPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <p className="text-base font-medium">Variants</p>
                 <VariantContainer form={form} />
-              </div>
+              </div> */}
             </div>
 
             {/* Right: Image */}
@@ -548,6 +549,11 @@ export default function SaveProductPage() {
                 <CategoryContainer form={form} />
               </div>
             </div>
+          </div>
+
+          <div className="space-y-2 mt-6 sm:mt-0">
+            <p className="text-base font-medium">Variants</p>
+            <VariantContainer form={form} />
           </div>
         </div>
       </form>

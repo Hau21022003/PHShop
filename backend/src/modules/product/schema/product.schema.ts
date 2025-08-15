@@ -28,11 +28,17 @@ export class ProductVariant {
 export class VariantOption {
   @Prop({ required: true })
   option: string;
+
+  @Prop()
+  image?: string;
 }
 
 export class VariantStructure {
   @Prop({ required: true })
   title: string;
+
+  @Prop()
+  enableImage?: boolean;
 
   @Prop({ type: [VariantOption], default: [] })
   options: VariantOption[];

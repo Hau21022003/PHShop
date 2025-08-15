@@ -7,8 +7,6 @@ import {
   PanelRightClose,
   Package,
   ClipboardList,
-  PackageSearch,
-  Ticket,
   ShoppingBag,
   MessageCircleMore,
   StarHalf,

@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -48,12 +49,20 @@ export class VariantOptionDto {
   @IsString()
   @IsNotEmpty()
   option: string;
+
+  @IsOptional()
+  @IsString()
+  image?: string;
 }
 
 export class VariantStructureDto {
   @IsString()
   @IsNotEmpty()
   title: string;
+
+  @IsOptional()
+  @IsBoolean()
+  enableImage?: boolean;
 
   @IsArray()
   @ValidateNested({ each: true })

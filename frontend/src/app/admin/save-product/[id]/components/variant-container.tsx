@@ -239,6 +239,7 @@ export default function VariantContainer({ form }: VariantContainerProps) {
       </div>
       <div className="space-y-2">
         <p className="text-gray-500">Variant name</p>
+        {/* Variant List */}
         {variantList.map((variant, index) => (
           <div key={`variant_item_${index}`} className="flex items-start gap-2">
             <div className="flex-1 flex gap-2 rounded-md border-2 border-gray-300 px-4 py-1">

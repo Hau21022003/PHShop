@@ -3,6 +3,7 @@ import {
   FindAllBodyType,
   FindAllProductType,
   ProductBodyType,
+  ProductDetailType,
   ProductResType,
   ProductWithCategoryType,
   StockBodyType,
@@ -24,4 +25,6 @@ export const productApiRequest = {
     http.put(`/product/${id}/active`, { active }),
   updateStock: (id: string, body: StockBodyType) =>
     http.put(`/product/${id}/stock`, body),
+  getProductDetail: (id: string) =>
+    http.get<ProductDetailType>(`/product/${id}/product-detail`),
 };
