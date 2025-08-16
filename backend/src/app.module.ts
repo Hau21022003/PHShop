@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { IsExistConstraint } from 'src/common/validators/is-exist-constraint.validator';
 import { mongooseConfig } from 'src/config/db.config';
+import { CartModule } from 'src/modules/cart/cart.module';
 import { CategoryModule } from 'src/modules/category/category.module';
 import { DownloadModule } from 'src/modules/download/download.module';
 import { ProductModule } from 'src/modules/product/product.module';
@@ -26,6 +27,7 @@ import { UsersModule } from 'src/modules/users/users.module';
     CategoryModule,
     ProductModule,
     DownloadModule,
+    CartModule,
   ],
   providers: [
     AppService,

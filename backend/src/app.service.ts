@@ -21,7 +21,7 @@ export class AppService {
       ? fs.readdirSync(this.uploadDir)
       : [];
 
-    // 2. Lấy tất cả ảnh đang dùng từ database 
+    // 2. Lấy tất cả ảnh đang dùng từ database
     const products = await this.productService.find();
     const usedFiles = new Set<string>();
 

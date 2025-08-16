@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/form";
 import { ProductBodyType } from "@/schemas/product.schema";
 import { EllipsisVertical, ImagePlus, PlusIcon } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   useFieldArray,
   useForm,
@@ -37,16 +39,23 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import EditableCell from "@/components/editable-cell";
 import AddImageVariantDialog from "@/app/admin/save-product/[id]/components/add-image-variant";
+import { Switch } from "@/components/ui/switch";
 
 interface VariantContainerProps {
   form: UseFormReturn<ProductBodyType>;
 }
 
-const VariantSchema = z.object({
+export const VariantSchema = z.object({
   title: z.string().min(1, "Title not empty"),
-  options: z.array(z.object({ option: z.string().min(1, "Option not empty") })),
+  enableImage: z.boolean().optional(),
+  options: z.array(
+    z.object({
+      image: z.string().optional(),
+      option: z.string().min(1, "Option not empty"),
+    })
+  ),
 });
-type VariantType = z.TypeOf<typeof VariantSchema>;
+export type VariantType = z.TypeOf<typeof VariantSchema>;
 
 interface VariantPair {
   title: string;
@@ -57,8 +66,8 @@ type VariantCombination = VariantPair[];
 export default function VariantContainer({ form }: VariantContainerProps) {
   const [addImageDialogState, setAddImageDialogState] = useState<{
     open: boolean;
-    variantIndex: number;
-  }>({ open: false, variantIndex: -1 });
+    optionIndex: number;
+  }>({ open: false, optionIndex: -1 });
 
   const [variantDialogState, setVariantDialogState] = useState<{
     open: boolean;
@@ -88,6 +97,7 @@ export default function VariantContainer({ form }: VariantContainerProps) {
     resolver: zodResolver(VariantSchema),
     defaultValues: {
       title: "",
+      enableImage: false,
       options: [{ option: "" }],
     },
   });
@@ -167,26 +177,13 @@ export default function VariantContainer({ form }: VariantContainerProps) {
     variantStructureReplace(newVariantList);
 
     const variantCombinations = generateVariantCombinations(newVariantList);
-    const oldVariants = watch("variants");
+    // const oldVariants = watch("variants");
     const newFormVariants: ProductBodyType["variants"] =
-      variantCombinations.map((variantCombination) => {
-        const oldVariant = oldVariants?.findLast((oldVariant) =>
-          oldVariant.attributes.every((attribute1) =>
-            variantCombination.some(
-              (attribute2) =>
-                attribute2.option === attribute1.option &&
-                attribute2.title === attribute1.title
-            )
-          )
-        );
-
-        return {
-          attributes: variantCombination,
-          price: oldVariant?.price || price || 0,
-          quantity: watch("quantity") || 0,
-          image: oldVariant?.image,
-        };
-      });
+      variantCombinations.map((variantCombination) => ({
+        attributes: variantCombination,
+        price: price || 0,
+        quantity: watch("quantity") || 0,
+      }));
     variantReplace(newFormVariants || []);
 
     handleCloseDialog();
@@ -237,132 +234,156 @@ export default function VariantContainer({ form }: VariantContainerProps) {
           <p className="text-sm leading-none font-medium">Add Variant</p>
         </button>
       </div>
-      <div className="space-y-2">
-        <p className="text-gray-500">Variant name</p>
-        {/* Variant List */}
-        {variantList.map((variant, index) => (
-          <div key={`variant_item_${index}`} className="flex items-start gap-2">
-            <div className="flex-1 flex gap-2 rounded-md border-2 border-gray-300 px-4 py-1">
-              <div className="flex items-center w-32">
-                <p title={variant.title} className="truncate">
-                  {variant.title}
-                </p>
-              </div>
-              <div className="flex gap-2 flex-row flex-wrap">
-                {variant.options.map((option, optionIndex) => (
-                  <div
-                    key={`variant_item_${index} option_${optionIndex}`}
-                    className="py-1 px-2 rounded-lg bg-gray-300 truncate max-w-60"
-                  >
-                    {option.option}
+
+      {form.watch("variantStructure").length > 0 && (
+        <Fragment>
+          <div className="space-y-2">
+            <p className="text-gray-500">Variant name</p>
+            {variantList.map((variant, index) => (
+              <div
+                key={`variant_item_${index}`}
+                className="flex items-start gap-2"
+              >
+                <div className="flex-1 flex items-start gap-2 rounded-md border-2 border-gray-300 px-4 py-1">
+                  <div className="mt-[6px] flex items-center w-32">
+                    <p title={variant.title} className="truncate">
+                      {variant.title}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className="cursor-pointer p-[10px] rounded-md border-2 border-gray-300">
-                  <EllipsisVertical className="w-5 h-5 text-gray-500" />
+                  <div className="flex-1 flex gap-2 flex-row flex-wrap">
+                    {variant.options.map((option, optionIndex) => (
+                      <div
+                        key={`variant_item_${index} option_${optionIndex}`}
+                        className={`flex items-center gap-2 py-1 px-1 rounded-sm bg-white border border-gray-400 truncate max-w-60`}
+                      >
+                        {option.image && (
+                          <img
+                            className="w-8 h-8 object-cover rounded-sm"
+                            src={option.image}
+                            alt=""
+                          />
+                          // <div className="relative w-10 h-10">
+                          //   <img
+                          //     className="w-full h-full rounded-md object-cover"
+                          //     src={option.image}
+                          //     alt=""
+                          //   />
+                          // </div>
+                        )}
+                        <p className="px-1">{option.option}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      {/* <div className="cursor-pointer p-[10px] rounded-md border-2 border-gray-300"> */}
+                      <EllipsisVertical className="mt-[6px] w-5 h-5 text-gray-500 cursor-pointer" />
+                      {/* </div> */}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() => handleOpenDialog("edit", index)}
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          removeVariant(index);
+                        }}
+                      >
+                        Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => handleOpenDialog("edit", index)}
-                >
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    removeVariant(index);
-                  }}
-                >
-                  Remove
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="border-t-1 border-gray-300"></div>
-      <Table className="text-gray-500">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-gray-500">Variants</TableHead>
-            <TableHead className="text-gray-500">Price</TableHead>
-            <TableHead className="text-gray-500">Stock</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="text-base">
-          {variantFields.map((field, index) => {
-            const image = watch(`variants.${index}.image`);
-            return (
-              <TableRow key={field.id}>
-                <TableCell className="flex items-center gap-2 text-black">
-                  {/* Input image */}
-                  <button
-                    type="button"
-                    className="cursor-pointer relative group"
-                    // onClick={() => fileInputRef.current?.click()}
-                    onClick={() =>
-                      setAddImageDialogState({
-                        open: true,
-                        variantIndex: index,
-                      })
-                    }
-                  >
-                    {image && (
-                      <div className="relative w-10 h-10">
-                        <img
-                          className="w-full h-full rounded-md object-cover"
-                          src={image}
-                          alt=""
-                        />
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                          <ImagePlus className="w-6 h-6 text-white" />
-                        </div>
-                      </div>
-                    )}
-                    {!image && (
-                      <div className="w-10 h-10 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-md">
-                        <ImagePlus className="w-6 h-6 text-gray-400" />
-                      </div>
-                    )}
-                  </button>
-                  <p>
-                    {field.attributes.reduce((sum, item, index) => {
-                      if (index === 0) return sum + item.option;
-                      else return sum + " / " + item.option;
-                    }, "")}
-                  </p>
-                </TableCell>
-                <TableCell>
-                  <EditableCell
-                    type="number"
-                    value={
-                      watch(`variants.${index}.price`)?.toLocaleString(
-                        "vi-VN"
-                      ) ?? ""
-                    }
-                    onChange={(val) => {
-                      const raw = Number(val.replace(/\./g, ""));
-                      setValue(`variants.${index}.price`, raw);
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <EditableCell
-                    type="number"
-                    value={String(watch(`variants.${index}.quantity`) ?? "")}
-                    onChange={(val) =>
-                      setValue(`variants.${index}.quantity`, Number(val))
-                    }
-                  />
-                </TableCell>
+          <div className="border-t-1 border-gray-300"></div>
+          {/* Stock variants */}
+          <Table className="text-gray-500">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-gray-500">Variants</TableHead>
+                <TableHead className="text-gray-500">Price</TableHead>
+                <TableHead className="text-gray-500">Stock</TableHead>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody className="text-base">
+              {variantFields.map((field, index) => {
+                const image = watch(`variants.${index}.image`);
+                return (
+                  <TableRow key={field.id}>
+                    <TableCell className="flex items-center gap-2 text-black">
+                      {/* Input image */}
+                      {/* <button
+                      type="button"
+                      className="cursor-pointer relative group"
+                      // onClick={() => fileInputRef.current?.click()}
+                      onClick={() =>
+                        setAddImageDialogState({
+                          open: true,
+                          optionIndex: index,
+                        })
+                      }
+                    >
+                      {image && (
+                        <div className="relative w-10 h-10">
+                          <img
+                            className="w-full h-full rounded-md object-cover"
+                            src={image}
+                            alt=""
+                          />
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ImagePlus className="w-6 h-6 text-white" />
+                          </div>
+                        </div>
+                      )}
+                      {!image && (
+                        <div className="w-10 h-10 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-md">
+                          <ImagePlus className="w-6 h-6 text-gray-400" />
+                        </div>
+                      )}
+                    </button> */}
+                      <p>
+                        {field.attributes.reduce((sum, item, index) => {
+                          if (index === 0) return sum + item.option;
+                          else return sum + " / " + item.option;
+                        }, "")}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <EditableCell
+                        type="number"
+                        value={
+                          watch(`variants.${index}.price`)?.toLocaleString(
+                            "vi-VN"
+                          ) ?? ""
+                        }
+                        onChange={(val) => {
+                          const raw = Number(val.replace(/\./g, ""));
+                          setValue(`variants.${index}.price`, raw);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <EditableCell
+                        type="number"
+                        value={String(
+                          watch(`variants.${index}.quantity`) ?? ""
+                        )}
+                        onChange={(val) =>
+                          setValue(`variants.${index}.quantity`, Number(val))
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Fragment>
+      )}
       <Dialog
         open={variantDialogState.open}
         onOpenChange={() => {
@@ -393,6 +414,30 @@ export default function VariantContainer({ form }: VariantContainerProps) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={variantForm.control}
+                name="enableImage"
+                render={({ field }) => (
+                  <FormItem className="mt-4 flex items-center space-x-2">
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          const options = variantForm.watch("options");
+                          options.forEach((_, optionIndex) => {
+                            variantForm.setValue(
+                              `options.${optionIndex}.image`,
+                              undefined
+                            );
+                          });
+                        }}
+                      />
+                    </FormControl>
+                    <p className="text-base">Use image for this variant</p>
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-between items-center mt-4">
                 <FormLabel className="text-gray-600">Options</FormLabel>
@@ -405,31 +450,71 @@ export default function VariantContainer({ form }: VariantContainerProps) {
                   <p className="text-sm font-medium">Add Option</p>
                 </button>
               </div>
-              {variantOptionFields.map((field, index) => (
-                <div key={field.id} className="space-y-2 mt-2">
-                  <div className="flex gap-2 items-stretch">
-                    <Input
-                      placeholder="Enter option"
-                      {...variantForm.register(`options.${index}.option`)}
-                    />
-                    <button
-                      type="button"
-                      className="border border-gray-300 px-2 rounded-md"
-                      onClick={() => variantOptionRemove(index)}
-                    >
-                      Remove
-                    </button>
+              {variantOptionFields.map((field, index) => {
+                const enableImage = variantForm.watch("enableImage");
+                const image = variantForm.watch(`options.${index}.image`);
+                return (
+                  <div key={field.id} className="space-y-2 mt-2">
+                    <div className="border border-gray-300 p-2 rounded-md flex gap-2 items-center">
+                      {/* Button Image add */}
+                      {enableImage && (
+                        <button
+                          type="button"
+                          className="cursor-pointer relative group"
+                          // onClick={() => fileInputRef.current?.click()}
+                          onClick={() =>
+                            setAddImageDialogState({
+                              open: true,
+                              optionIndex: index,
+                            })
+                          }
+                        >
+                          {image && (
+                            <div className="relative w-10 h-10">
+                              <img
+                                className="w-full h-full rounded-md object-cover"
+                                src={image}
+                                alt=""
+                              />
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                <ImagePlus className="w-6 h-6 text-white" />
+                              </div>
+                            </div>
+                          )}
+                          {!image && (
+                            <div className="w-10 h-10 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-md">
+                              <ImagePlus className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                        </button>
+                      )}
+                      <input
+                        {...variantForm.register(`options.${index}.option`)}
+                        placeholder="Enter option"
+                        className="mx-2 flex-1 border-none bg-transparent focus:outline-none"
+                      />
+                      <div
+                        className="w-7 h-7 flex items-center justify-center bg-gray-400 px-2 rounded-sm cursor-pointer"
+                        onClick={() => variantOptionRemove(index)}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size="sm"
+                          className="w-4 h-4 text-white"
+                        />
+                      </div>
+                    </div>
+                    {variantForm.formState.errors.options?.[index]?.option && (
+                      <p className="text-sm text-red-500">
+                        {
+                          variantForm.formState.errors.options[index].option
+                            ?.message
+                        }
+                      </p>
+                    )}
                   </div>
-                  {variantForm.formState.errors.options?.[index]?.option && (
-                    <p className="text-sm text-red-500">
-                      {
-                        variantForm.formState.errors.options[index].option
-                          ?.message
-                      }
-                    </p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
 
               <div className="mt-4 flex justify-end">
                 <button className="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium text-sm">
@@ -442,11 +527,10 @@ export default function VariantContainer({ form }: VariantContainerProps) {
       </Dialog>
       <AddImageVariantDialog
         open={addImageDialogState.open}
-        onClose={() =>
-          setAddImageDialogState({ open: false, variantIndex: -1 })
-        }
+        onClose={() => setAddImageDialogState({ open: false, optionIndex: -1 })}
         form={form}
-        variantIndex={addImageDialogState.variantIndex}
+        optionIndex={addImageDialogState.optionIndex}
+        variantForm={variantForm}
       />
     </div>
   );

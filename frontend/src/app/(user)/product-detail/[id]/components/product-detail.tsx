@@ -1,9 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
 import { ProductDetailType } from "@/schemas/product.schema";
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faCartPlus } from "@fortawesome/free-solid-svg-icons";
 import { Minus, Plus } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CartItemBody } from "@/schemas/cart.schema";
 interface ProductDetailProps {
   product?: ProductDetailType;
 }
@@ -18,6 +22,129 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       useGrouping: true,
       maximumFractionDigits: 0,
     }).format(priceDiscount);
+  };
+
+  const form = useForm({
+    resolver: zodResolver(CartItemBody),
+    defaultValues: {
+      attributeVariant: [],
+      quantity: 1,
+    },
+  });
+  const [errorSelectVariant, setErrorSelectVariant] = useState(false);
+  const [stock, setStoke] = useState(product?.quantity || 0);
+
+  const isVariantSelectionIncomplete = () => {
+    if (!product || product.variantStructure.length === 0) return false;
+    const selected = product.variantStructure.every((variant) => {
+      const selectedVariants = form.getValues("attributeVariant");
+      if (!selectedVariants) return false;
+      return selectedVariants.some(
+        (selectedVariant) => selectedVariant.title === variant.title
+      );
+    });
+    return !selected;
+  };
+
+  useEffect(() => {
+    setStoke(product?.quantity || 0);
+    if (product) {
+      form.reset({
+        attributeVariant: [],
+        quantity: 1,
+        product: product?._id,
+        snapshot: {
+          image: product.images.length > 0 ? product?.images[0] : "",
+          name: product.name,
+          price: product.price,
+        },
+      });
+    }
+  }, [product]);
+
+  useEffect(() => {
+    if (errorSelectVariant && !isVariantSelectionIncomplete()) {
+      setErrorSelectVariant(false);
+    }
+
+    if (
+      !isVariantSelectionIncomplete() &&
+      product?.variantStructure.length !== 0
+    ) {
+      const selectedAttributes = form.getValues("attributeVariant") || [];
+      const selectedVariant = product?.variants?.findLast((variant) =>
+        variant.attributes.every((attribute) =>
+          selectedAttributes.some(
+            (selectedAttribute) =>
+              selectedAttribute.option === attribute.option &&
+              selectedAttribute.title === attribute.title
+          )
+        )
+      );
+      const selectedVariantStock = selectedVariant?.quantity || 0;
+      form.setValue("quantity", 1);
+      setStoke(selectedVariantStock);
+    }
+  }, [form.getValues("attributeVariant")]);
+
+  const increaseQuantity = () => {
+    const quantity = form.watch("quantity");
+    if (quantity < stock) {
+      form.setValue("quantity", quantity + 1);
+    }
+  };
+
+  const decreaseQuantity = () => {
+    const quantity = form.watch("quantity");
+    if (quantity >= 2) {
+      form.setValue("quantity", quantity - 1);
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = parseInt(e.target.value, 10);
+
+    if (isNaN(value)) {
+      value = 1;
+    }
+
+    if (value < 1) value = 1;
+    if (stock && value > stock) value = stock;
+
+    form.setValue("quantity", value, { shouldValidate: true });
+  };
+
+  const handleSelectVariantOption = (title: string, option: string) => {
+    const attributeVariants = form.getValues("attributeVariant") || [];
+
+    const exists = attributeVariants.find(
+      (attr) => attr.title === title && attr.option === option
+    );
+
+    let updatedAttributes;
+
+    if (exists) {
+      // Nếu trùng cả title + option => xóa đi
+      updatedAttributes = attributeVariants.filter(
+        (attr) => !(attr.title === title && attr.option === option)
+      );
+    } else {
+      // Nếu khác => xóa cái cũ cùng title, thêm cái mới
+      updatedAttributes = [
+        ...attributeVariants.filter((attr) => attr.title !== title),
+        { title, option },
+      ];
+    }
+
+    form.setValue("attributeVariant", updatedAttributes);
+  };
+
+  const addCart = () => {
+    console.log(form.getValues());
+    if (isVariantSelectionIncomplete()) {
+      setErrorSelectVariant(true);
+      return;
+    }
   };
 
   return (
@@ -59,40 +186,135 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         )}
       </div>
       {/* Variant */}
-      <div className="mt-8 flex gap-2 flex-col sm:flex-row sm:items-center">
-        <p className="text-base text-gray-500 w-[20%] sm:truncate">Màu sắc</p>
-        <div className="flex flex-wrap gap-2">
-          {/* Item */}
-          <div className="px-2 w-auto min-w-26 h-10 flex gap-2 items-center border border-gray-300 cursor-pointer hover:border-black">
-            <img src="" alt="" className="w-7 h-7 object-cover" />
-            <p className="leading-none text-base">HH</p>
+      <div className="mt-8 space-y-4">
+        {product?.variantStructure.map((variant, idx) => (
+          <div
+            key={idx}
+            className={`w-full flex gap-2 flex-col sm:flex-row sm:items-center`}
+          >
+            <p className="text-base text-gray-500 w-[20%] flex-shrink-0 sm:truncate">
+              {variant.title}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {/* Item */}
+
+              {variant.options.map((option, optionIndex) => {
+                const optionTotalQuantity =
+                  product.variants?.reduce((quantity, item) => {
+                    if (
+                      item.attributes.some(
+                        (attribute) =>
+                          variant.title === attribute.title &&
+                          option.option === attribute.option
+                      )
+                    ) {
+                      return quantity + item.quantity;
+                    } else return quantity;
+                  }, 0) || 0;
+
+                const selectedAttributes = form.watch("attributeVariant") || [];
+
+                const availableQuantityForOption =
+                  product.variants?.reduce((quantity, productVariant) => {
+                    const otherSelectedAttributes = selectedAttributes.filter(
+                      (selectedAttribute) =>
+                        selectedAttribute.title !== variant.title
+                    );
+                    const hasAllSelectedAttributes =
+                      otherSelectedAttributes.every((selectedAttribute) => {
+                        return (
+                          productVariant.attributes.some(
+                            (attribute) =>
+                              attribute.title === selectedAttribute.title &&
+                              attribute.option === selectedAttribute.option
+                          ) &&
+                          productVariant.attributes.some(
+                            (attribute) =>
+                              attribute.title === variant.title &&
+                              attribute.option === option.option
+                          )
+                        );
+                      });
+                    if (hasAllSelectedAttributes) {
+                      return productVariant.quantity + quantity;
+                    }
+
+                    return quantity;
+                  }, 0) || 0;
+
+                return (
+                  <div
+                    key={`${idx}_option_${optionIndex}`}
+                    className={`${
+                      option.image ? "" : "min-w-20 justify-center"
+                    } px-2 w-auto h-10 flex gap-2 items-center border cursor-pointer
+                    ${
+                      optionTotalQuantity > 0
+                        ? ""
+                        : "bg-gray-200 pointer-events-none"
+                    }
+                    ${
+                      selectedAttributes.length === 0 ||
+                      availableQuantityForOption > 0
+                        ? ""
+                        : "bg-gray-200 pointer-events-none"
+                    }
+                    ${
+                      form
+                        .watch("attributeVariant")
+                        ?.some(
+                          (attr) =>
+                            attr.option === option.option &&
+                            attr.title === variant.title
+                        )
+                        ? "border-black"
+                        : "border-gray-300"
+                    }`}
+                    onClick={() =>
+                      handleSelectVariantOption(variant.title, option.option)
+                    }
+                  >
+                    {option.image && (
+                      <img
+                        src={option.image}
+                        alt=""
+                        className="w-7 h-7 object-cover"
+                      />
+                    )}
+                    <p className="leading-none text-base">{option.option}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          {/* Item */}
-          <div className="px-2 w-auto min-w-26 h-10 flex gap-2 items-center justify-center border border-gray-300">
-            <p className="leading-none">HH</p>
-          </div>
-        </div>
+        ))}
       </div>
+
       {/* quantity */}
-      <div className="mt-8 flex items-center gap-2">
+      <div className={`mt-4 flex items-center gap-2`}>
         <p className="text-gray-500 w-[20%]">Quantity</p>
-        <div className="flex items-center border border-gray-300 ">
+        <div
+          className={`flex items-center border border-gray-300 ${
+            isVariantSelectionIncomplete()
+              ? "opacity-60 pointer-events-none"
+              : ""
+          }`}
+        >
           <button
-            // onClick={decreaseQuantity}
-            // disabled={quantity <= 1}
+            onClick={decreaseQuantity}
+            disabled={form.watch("quantity") <= 1}
             className="p-1 px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Minus className="w-4 h-4 text-gray-600" />
           </button>
 
-          <div className="px-4 py-1  bg-white border-x border-gray-300">
+          <div className="px-3 py-1  bg-white border-x border-gray-300">
             <input
               type="number"
-              // value={quantity}
-              // onChange={handleInputChange}
+              value={form.watch("quantity")}
+              onChange={handleQuantityChange}
               min="1"
-              // max={stock}
-              // className="w-12 text-center font-semibold text-gray-800 outline-none bg-transparent"
+              max={stock}
               className="w-8 text-center text-gray-800 outline-none bg-transparent 
               [&::-webkit-inner-spin-button]:appearance-none 
               [&::-webkit-outer-spin-button]:appearance-none 
@@ -101,17 +323,37 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           </div>
 
           <button
-            // onClick={increaseQuantity}
-            // disabled={quantity >= stock}
+            onClick={increaseQuantity}
+            disabled={form.watch("quantity") >= stock}
             className="p-1 px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4 text-gray-600" />
           </button>
         </div>
+        {product?.variantStructure.length !== 0 &&
+          isVariantSelectionIncomplete() &&
+          stock > 0 && (
+            <p className="ml-4 text-gray-400 uppercase leading-none">
+              Available
+            </p>
+          )}
+        {!isVariantSelectionIncomplete() && (
+          <p className={`ml-4 text-gray-400 leading-none`}>
+            {stock} products available
+          </p>
+        )}
       </div>
+
+      {errorSelectVariant && (
+        <p className="mt-4 text-red-600">Please select product category</p>
+      )}
+
       {/* Button buy - add cart */}
       <div className="mt-8 flex flex-col lg:flex-row gap-6">
-        <button className="cursor-pointer w-full lg:w-50 p-4 flex items-center justify-center gap-3 bg-black text-white font-medium">
+        <button
+          onClick={addCart}
+          className="cursor-pointer w-full lg:w-50 p-4 flex items-center justify-center gap-3 bg-black text-white font-medium"
+        >
           <FontAwesomeIcon icon={faCartPlus} size="lg" className="w-6 h-6" />
           <p>Add To Bag</p>
         </button>

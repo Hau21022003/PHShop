@@ -19,26 +19,6 @@ export class ProductService {
   ) {}
 
   create(createProductDto: CreateProductDto) {
-    // const variantImages = createProductDto.variants.reduce(
-    //   (accumulator, currentVariant) => {
-    //     if (
-    //       !currentVariant.image ||
-    //       createProductDto.images.includes(currentVariant.image)
-    //     )
-    //       return accumulator;
-    //     else return [...accumulator, currentVariant.image];
-    //   },
-    //   [],
-    // );
-    // const descriptionImages = [
-    //   ...this.getImgSrcFromHtml(createProductDto.description),
-    //   ...variantImages,
-    // ];
-
-    // const product = {
-    //   ...createProductDto,
-    //   descriptionImages,
-    // };
     const product = this.buildProductData(createProductDto);
     const created = new this.productModel(product);
     return created.save();
@@ -154,27 +134,6 @@ export class ProductService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    // const variantImages = updateProductDto.variants.reduce(
-    //   (accumulator, currentVariant) => {
-    //     if (
-    //       !currentVariant.image ||
-    //       updateProductDto.images.includes(currentVariant.image)
-    //     )
-    //       return accumulator;
-    //     else return [...accumulator, currentVariant.image];
-    //   },
-    //   [],
-    // );
-    // const descriptionImages = [
-    //   ...this.getImgSrcFromHtml(updateProductDto.description),
-    //   ...variantImages,
-    // ];
-
-    // const product = {
-    //   ...updateProductDto,
-    //   descriptionImages,
-    // };
-
     const product = this.buildProductData(updateProductDto);
     const updated = await this.productModel.findByIdAndUpdate(
       id,
@@ -220,17 +179,30 @@ export class ProductService {
   }
 
   private buildProductData(dto: CreateProductDto | UpdateProductDto) {
-    const variantImages = dto.variants.reduce((accumulator, currentVariant) => {
-      if (!currentVariant.image || dto.images.includes(currentVariant.image)) {
-        return accumulator;
-      }
-      return [...accumulator, currentVariant.image];
-    }, [] as string[]);
+    const variantImages = dto.variantStructure.reduce(
+      (accumulator, currentVariantStructure) => {
+        if (!currentVariantStructure.enableImage) {
+          return accumulator;
+        }
+        const optionImages = currentVariantStructure.options
+          .filter((item) => item.image)
+          .map((item) => item.image);
+        return [...accumulator, ...optionImages];
+      },
+      [] as string[],
+    );
 
     const descriptionImages = [
       ...this.getImgSrcFromHtml(dto.description),
       ...variantImages,
     ];
+
+    if (dto.variants.length !== 0) {
+      dto.quantity = dto.variants.reduce(
+        (sum, variant) => sum + variant.quantity,
+        0,
+      );
+    }
 
     return {
       ...dto,

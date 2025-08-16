@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { productApiRequest } from "@/api-requests/product";
+import { VariantType } from "@/app/admin/save-product/[id]/components/variant-container";
 import {
   Dialog,
   DialogContent,
@@ -11,29 +12,33 @@ import { handleErrorApi } from "@/lib/error";
 import { ProductBodyType } from "@/schemas/product.schema";
 import { ImagePlus } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { UseFormReturn, useWatch } from "react-hook-form";
+import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
 interface AddImageVariantProps {
   form: UseFormReturn<ProductBodyType>;
   open: boolean;
   onClose: () => void;
-  variantIndex: number;
+  optionIndex: number;
+  variantForm: UseFormReturn<VariantType>;
 }
 export default function AddImageVariantDialog({
   form,
   onClose,
   open,
-  variantIndex,
+  optionIndex,
+  variantForm,
 }: AddImageVariantProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { control, watch, setValue } = form;
-  const images = useWatch({ control, name: "images" });
+  // const { control, watch, setValue } = form;
+  // const images = useWatch({ control, name: "images" });
+  const images = form.watch(`images`);
   const [selectedImage, setSelectedImage] = useState<string | undefined>();
 
   useEffect(() => {
-    if (variantIndex >= 0) {
-      setSelectedImage(watch(`variants.${variantIndex}.image`));
+    if (optionIndex >= 0) {
+      const image = variantForm.watch(`options.${optionIndex}.image`);
+      setSelectedImage(image);
     }
-  }, [variantIndex, watch]);
+  }, [optionIndex, variantForm]);
   const handleSelectImage = (src: string) => {
     setSelectedImage(src);
     // Nếu muốn cập nhật vào form hoặc xử lý upload thì gọi hàm ở đây
@@ -41,7 +46,7 @@ export default function AddImageVariantDialog({
   };
 
   const saveVariantImage = () => {
-    setValue(`variants.${variantIndex}.image`, selectedImage);
+    variantForm.setValue(`options.${optionIndex}.image`, selectedImage);
     onClose();
   };
 
@@ -151,12 +156,12 @@ export default function AddImageVariantDialog({
             <button
               disabled={
                 !selectedImage ||
-                selectedImage === watch(`variants.${variantIndex}.image`)
+                selectedImage === variantForm.watch(`options.${optionIndex}.image`)
               }
               onClick={saveVariantImage}
               className={`px-4 py-2 rounded-lg font-medium text-sm text-white ${
                 !selectedImage ||
-                selectedImage === watch(`variants.${variantIndex}.image`)
+                selectedImage === variantForm.watch(`options.${optionIndex}.image`)
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}

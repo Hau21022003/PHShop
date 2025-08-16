@@ -51,6 +51,8 @@ export default function SaveProductPage() {
       description: "",
       gender: Gender.UNISEX,
       images: [],
+      variantStructure: [],
+      variants: [],
     },
   });
 
@@ -414,7 +416,7 @@ export default function SaveProductPage() {
               </div>
 
               {/* Price and stock */}
-              <div className="space-y-2 sm:mb-6">
+              <div className="space-y-2">
                 <p className="text-base font-medium">Price And Stock</p>
                 <div className="bg-gray-50 p-4 border-2 border-gray-200 rounded-md space-y-4">
                   <div className="flex flex-col gap-6 md:flex-row items-start md:gap-3">
@@ -527,10 +529,10 @@ export default function SaveProductPage() {
                 </div>
               </div>
 
-              {/* <div className="space-y-2">
+              <div className="space-y-2">
                 <p className="text-base font-medium">Variants</p>
                 <VariantContainer form={form} />
-              </div> */}
+              </div>
             </div>
 
             {/* Right: Image */}
@@ -549,11 +551,6 @@ export default function SaveProductPage() {
                 <CategoryContainer form={form} />
               </div>
             </div>
-          </div>
-
-          <div className="space-y-2 mt-6 sm:mt-0">
-            <p className="text-base font-medium">Variants</p>
-            <VariantContainer form={form} />
           </div>
         </div>
       </form>

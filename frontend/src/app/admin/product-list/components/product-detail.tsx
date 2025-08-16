@@ -74,28 +74,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             </TableHeader>
             <TableBody className="text-base">
               {variantFields.map((field, index) => {
-                const image = watch(`variants.${index}.image`);
                 return (
                   <TableRow key={field.id}>
                     <TableCell className="pl-4 flex items-center gap-2 text-black">
-                      {/* Input image */}
-                      {image && (
-                        <div className="relative w-10 h-10">
-                          <img
-                            className="w-full h-full rounded-md object-cover"
-                            src={image}
-                            alt=""
-                          />
-                        </div>
-                      )}
-                      {!image && (
-                        <div className="flex items-center justify-center w-10 h-10">
-                          <FontAwesomeIcon
-                            icon={faImage}
-                            className="text-gray-600 w-5 h-5"
-                          />
-                        </div>
-                      )}
                       <p>
                         {field.attributes.reduce((sum, item, index) => {
                           if (index === 0) return sum + item.option;
