@@ -7,7 +7,7 @@ import {
 } from "@/lib/error";
 import { normalizePath } from "@/lib/format";
 import { LoginResType } from "@/schemas/auth.schema";
-import { authStorage } from "@/utils/auth-storage";
+import { authStorage } from "@/lib/auth/auth-storage";
 import { redirect } from "next/navigation";
 
 type CustomOptions = Omit<RequestInit, "method"> & {
@@ -137,7 +137,7 @@ const request = async <Response>(
   }
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient()) {
-    if (["auth/signin"].some((item) => item === normalizePath(url))) {
+    if (["auth/signin", "auth/signup"].some((item) => item === normalizePath(url))) {
       const { accessToken, accessTokenExpiresAt } = payload as LoginResType;
       // localStorage.setItem("sessionToken", accessToken);
       // localStorage.setItem("sessionTokenExpiresAt", accessTokenExpiresAt);

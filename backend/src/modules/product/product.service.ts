@@ -161,9 +161,16 @@ export class ProductService {
   }
 
   async updateStock(id: string, dto: UpdateStockDto) {
+    const product: Record<string, any> = { ...dto };
+    if (dto.variants.length !== 0) {
+      product.quantity = dto.variants.reduce(
+        (sum, variant) => sum + variant.quantity,
+        0,
+      );
+    }
     const updated = await this.productModel.findByIdAndUpdate(
       id,
-      { $set: dto },
+      { $set: product },
       { new: true },
     );
 

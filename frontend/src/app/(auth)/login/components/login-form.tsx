@@ -145,7 +145,7 @@ export function LoginForm() {
           variant="outline"
           className="w-full"
           onClick={() => {
-            window.location.href = `${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/google`;
+            window.location.href = `${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/google?prompt=select_account`;
           }}
         >
           <Image

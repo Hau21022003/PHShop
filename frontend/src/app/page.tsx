@@ -9,18 +9,17 @@ export default function Home() {
   useEffect(() => {
     if (isLoading) return;
 
-    // if (!isAuthenticated) {
-    //   router.push("/login");
-    //   return;
-    // }
-
     if (user?.role === "admin") {
-      router.push("/admin/product-list");
+      router.replace("/admin/product-list");
       return;
     }
 
-    router.push("/product-list");
+    router.replace("/product-list");
   }, [isLoading, isAuthenticated, user, router]);
+
+  useEffect(() => {
+    router.prefetch("/admin/product-list");
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

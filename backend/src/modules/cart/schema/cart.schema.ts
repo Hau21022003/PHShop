@@ -29,7 +29,7 @@ export class ProductSnapshot {
 }
 
 @Schema({ timestamps: true })
-export class CartItem extends Document {
+export class CartItem {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Product' })
   product: Product;
 
@@ -46,4 +46,5 @@ export class CartItem extends Document {
   snapshot: ProductSnapshot;
 }
 
+export type CartItemDocument = CartItem & Document;
 export const CartItemSchema = SchemaFactory.createForClass(CartItem);

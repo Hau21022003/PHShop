@@ -31,8 +31,6 @@ export class AppService {
         ...(product.descriptionImages || []),
       ];
 
-      // console.log('allImageUrls', allImageUrls);
-
       allImageUrls.forEach((url) => {
         const filename = path.basename(url);
         usedFiles.add(filename);

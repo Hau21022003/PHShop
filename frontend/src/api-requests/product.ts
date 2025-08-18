@@ -5,7 +5,6 @@ import {
   ProductBodyType,
   ProductDetailType,
   ProductResType,
-  ProductWithCategoryType,
   StockBodyType,
   UploadImageResType,
 } from "@/schemas/product.schema";

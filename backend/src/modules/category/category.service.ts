@@ -27,20 +27,6 @@ export class CategoryService {
     return created.save();
   }
 
-  // findAll(dto: FindAllDto) {
-  //   const filter: Record<string, any> = dto.search
-  //     ? { name: { $regex: dto.search, $options: 'i' } }
-  //     : {};
-  //   if (dto.status !== Status.ALL) {
-  //     filter.active = dto.status === Status.ACTIVE;
-  //   }
-  //   return this.categoryModel
-  //     .find(filter)
-  //     .sort({ createdAt: -1 })
-  //     .lean()
-  //     .exec();
-  // }
-
   findAll(dto: FindAllDto) {
     const matchStage: Record<string, any> = dto.search
       ? { name: { $regex: dto.search, $options: 'i' } }

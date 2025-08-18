@@ -38,7 +38,6 @@ export default function ProductDetailPage() {
   }, [params]);
   return (
     <div className="container max-w-[1200px] mx-auto px-6 py-6">
-      {/* {product?.name} */}
       <div className="flex items-start flex-col gap-2 lg:flex-row lg:gap-10">
         <ProductDetailProvider>
           <div className="w-full lg:flex-2">

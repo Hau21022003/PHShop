@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { LoginForm } from "@/app/(auth)/login/components/login-form";
 import { Raleway } from "next/font/google";
-import Image from "next/image";
 const raleway = Raleway({
   subsets: ["latin"],
   weight: ["400"],

@@ -1,5 +1,5 @@
 "use client";
-import { ScrollProvider, useScrollContext } from "@/app/(user)/scroll-context";
+import { UserProvider, useUserContext } from "@/app/(user)/user-provider";
 import UserHeader from "@/app/(user)/header";
 export default function UserLayout({
   children,
@@ -7,14 +7,14 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ScrollProvider>
+    <UserProvider>
       <LayoutContent>{children}</LayoutContent>
-    </ScrollProvider>
+    </UserProvider>
   );
 }
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { scrollRef } = useScrollContext();
+  const { scrollRef } = useUserContext();
 
   return (
     <div className="h-full flex flex-col">

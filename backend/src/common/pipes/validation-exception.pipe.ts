@@ -14,6 +14,7 @@ export const CustomValidationPipe = new ValidationPipe({
       field: err.property,
       messages: Object.values(err.constraints || {}),
     }));
+    // console.log('CustomValidationPipe', formattedErrors)
     return new UnprocessableEntityException({
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       errors: formattedErrors,

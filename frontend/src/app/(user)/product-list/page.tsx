@@ -2,7 +2,7 @@
 import { productApiRequest } from "@/api-requests/product";
 import FilterSidebar from "@/app/(user)/product-list/components/filter-sidebar";
 import ProductItem from "@/app/(user)/product-list/components/product-item";
-import { useScrollContext } from "@/app/(user)/scroll-context";
+import { useUserContext } from "@/app/(user)/user-provider";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { handleErrorApi } from "@/lib/error";
@@ -22,7 +22,7 @@ import { useForm, useWatch } from "react-hook-form";
 export default function ProductListPage() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { scrollRef } = useScrollContext();
+  const { scrollRef } = useUserContext();
   const searchParams = useSearchParams();
   const bodyForm = useForm({
     resolver: zodResolver(FindAllBody),

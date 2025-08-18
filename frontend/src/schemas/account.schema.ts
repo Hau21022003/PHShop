@@ -10,7 +10,8 @@ export const AccountSchema = z.object({
   isActive: z.boolean(),
   createdAt: z.date(),
 });
-export const AccountRes = createBaseResp(AccountSchema);
+// export const AccountRes = createBaseResp(AccountSchema);
+export const AccountRes = AccountSchema;
 export type AccountResType = z.TypeOf<typeof AccountRes>;
 export type AccountType = z.TypeOf<typeof AccountSchema>;
 

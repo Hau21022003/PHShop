@@ -3,6 +3,7 @@ import {
   LoginBodyType,
   LoginResType,
   RegisterBodyType,
+  RegisterResType,
   SlideSessionResType,
 } from "@/schemas/auth.schema";
 import { BaseResType } from "@/schemas/common.schema";
@@ -10,11 +11,10 @@ import { BaseResType } from "@/schemas/common.schema";
 const authApiRequest = {
   login: (body: LoginBodyType) => http.post<LoginResType>("/auth/signin", body),
   register: (body: RegisterBodyType) =>
-    http.post("/auth/signup", body),
+    http.post<RegisterResType>("/auth/signup", body),
   forgotPassword: (email: string) =>
     http.get<BaseResType>(`/auth/forgot-password/${email}`),
-  verifyEmail: (token: string) =>
-    http.get(`/auth/verify-email/${token}`),
+  verifyEmail: (token: string) => http.get(`/auth/verify-email/${token}`),
   auth: (body: {
     sessionToken: string;
     expiresAt: string;

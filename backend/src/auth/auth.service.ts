@@ -26,11 +26,11 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(pass, user.password);
     if (!passwordMatches) return null;
 
-    if (!user.emailActive) {
-      throw new BadRequestException(
-        'Account not activated. Please check your email to verify.',
-      );
-    }
+    // if (!user.emailActive) {
+    //   throw new BadRequestException(
+    //     'Account not activated. Please check your email to verify.',
+    //   );
+    // }
 
     if (!user.isActive) {
       throw new BadRequestException(
@@ -68,14 +68,13 @@ export class AuthService {
       ...createUserDto,
       password: hash,
     });
-    const token = await this.generateVerificationToken(newUser.id);
-
-    await EmailHelper.sendMail(
-      newUser.email,
-      'verify email',
-      '',
-      `Click to verify: ${this.configService.get('CLIENT_URL')}/verify-email?token=${token}, The link will be active for 1 hour.`,
-    );
+    
+    const tokens = await this.getTokens(newUser._id.toString(), newUser.email);
+    await this.updateRefreshToken(newUser._id.toString(), tokens.refreshToken);
+    return {
+      account: newUser,
+      ...tokens,
+    };
   }
 
   private async generateVerificationToken(userId: string) {
@@ -88,26 +87,26 @@ export class AuthService {
     );
   }
 
-  async verifyEmail(token: string) {
-    let decoded: any;
-    try {
-      decoded = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      });
-    } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        throw new BadRequestException('Token has expired');
-      } else if (error.name === 'JsonWebTokenError') {
-        throw new BadRequestException('Invalid token');
-      } else {
-        throw new BadRequestException('Could not verify token');
-      }
-    }
-    const user = await this.usersService.findOne(decoded.userId);
-    if (!user) throw new BadRequestException('User not found');
-    user.emailActive = true;
-    await this.usersService.update(user._id.toString(), user);
-  }
+  // async verifyEmail(token: string) {
+  //   let decoded: any;
+  //   try {
+  //     decoded = await this.jwtService.verifyAsync(token, {
+  //       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+  //     });
+  //   } catch (error) {
+  //     if (error.name === 'TokenExpiredError') {
+  //       throw new BadRequestException('Token has expired');
+  //     } else if (error.name === 'JsonWebTokenError') {
+  //       throw new BadRequestException('Invalid token');
+  //     } else {
+  //       throw new BadRequestException('Could not verify token');
+  //     }
+  //   }
+  //   const user = await this.usersService.findOne(decoded.userId);
+  //   if (!user) throw new BadRequestException('User not found');
+  //   user.emailActive = true;
+  //   await this.usersService.update(user._id.toString(), user);
+  // }
 
   async logout(userId: string) {
     return await this.usersService.update(userId, { refreshToken: null });
@@ -225,7 +224,7 @@ export class AuthService {
     if (!userExists) {
       userExists = await this.usersService.create({
         email: user.email,
-        password: '',
+        password: 'Abcd123!',
         fullName: `${user.firstName} ${user.lastName}`,
         avatar: user.picture,
       });

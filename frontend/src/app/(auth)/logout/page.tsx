@@ -18,11 +18,11 @@ function LogoutLogic() {
       .then(() => {
         localStorage.removeItem("sessionToken"); // Nếu bạn đang lưu token
         setUser(null);
-        router.push(`/login?redirectFrom=${pathname}`);
+        router.replace(`/login?redirectFrom=${pathname}`);
       })
       .catch((err) => {
         console.error("Logout failed:", err);
-        router.push(`/login?redirectFrom=${pathname}`);
+        router.replace(`/login?redirectFrom=${pathname}`);
       });
 
     return () => {

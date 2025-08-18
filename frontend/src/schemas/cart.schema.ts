@@ -1,5 +1,7 @@
-import { ProductWithCategory } from "@/schemas/product.schema";
+import { ProductRes } from "@/schemas/product.schema";
 import { z } from "zod";
+
+// const AttributeVariantSchema = z.object({})
 
 export const CartItemBody = z.object({
   product: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid product id"), // MongoId
@@ -16,11 +18,15 @@ export const CartItemBody = z.object({
     name: z.string().min(1, "Product name is required"),
     image: z.string(),
     price: z.number().positive("Price must be greater than 0"),
+    discount: z.number().optional(),
   }),
 });
 export type CartItemBodyType = z.TypeOf<typeof CartItemBody>;
 
 export const CartItemRes = CartItemBody.extend({
-  product: ProductWithCategory.optional(),
+  _id: z.string(),
+  product: ProductRes.optional(),
 });
 export type CartItemResType = z.TypeOf<typeof CartItemRes>;
+
+export type UpdateCartItemType = Partial<CartItemBodyType>;

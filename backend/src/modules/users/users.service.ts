@@ -36,9 +36,6 @@ export class UsersService {
     return user;
   }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
   async update(id: string, updateData: Partial<User>) {
     const updatedUser = await this.userModel.findByIdAndUpdate(
       id,

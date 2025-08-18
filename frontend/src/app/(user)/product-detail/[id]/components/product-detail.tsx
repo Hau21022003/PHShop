@@ -8,10 +8,15 @@ import { Minus, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CartItemBody } from "@/schemas/cart.schema";
+import { handleErrorApi } from "@/lib/error";
+import { cartService } from "@/lib/user/cart-service";
+import { useUserContext } from "@/app/(user)/user-provider";
+import { toast } from "sonner";
 interface ProductDetailProps {
   product?: ProductDetailType;
 }
 export default function ProductDetail({ product }: ProductDetailProps) {
+  const { loadCart } = useUserContext();
   const getPriceDiscount = (price: number, discount: number) => {
     const rawPriceDiscount =
       price && discount ? price - (price * discount) / 100 : price;
@@ -139,11 +144,23 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     form.setValue("attributeVariant", updatedAttributes);
   };
 
-  const addCart = () => {
-    console.log(form.getValues());
+  const addCart = async () => {
     if (isVariantSelectionIncomplete()) {
       setErrorSelectVariant(true);
       return;
+    }
+    try {
+      // await cartApiRequest.createCartItem(form.getValues());
+      await cartService.addCartItem(form.getValues());
+      toast.success("Success", {
+        duration: 3000,
+        description: "Product has been added to your cart",
+      });
+      loadCart();
+      // console.log("getCart", await cartService.getCart());
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      handleErrorApi({ error });
     }
   };
 

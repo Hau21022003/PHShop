@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
@@ -24,17 +25,20 @@ export class CartController {
     return this.cartService.create(createCartDto, userId);
   }
 
+  @Post('batch')
+  createBatch(
+    @Body() createCartDto: CreateCartItemDto[],
+    @GetUser('sub') userId: string,
+  ) {
+    return this.cartService.createBatch(createCartDto, userId);
+  }
+
   @Get()
-  findAll() {
-    return this.cartService.findAll();
+  findAll(@GetUser('sub') userId: string) {
+    return this.cartService.findAll(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartService.findOne(+id);
-  }
-
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateCartDto: UpdateCartItemDto,
@@ -44,7 +48,7 @@ export class CartController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartService.remove(+id);
+  remove(@Param('id') id: string, @GetUser('sub') userId: string) {
+    return this.cartService.remove(id, userId);
   }
 }

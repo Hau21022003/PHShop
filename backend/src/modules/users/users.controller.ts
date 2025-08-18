@@ -10,6 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -23,6 +24,11 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('profile')
+  getProfile(@GetUser('sub') userId: string) {
+    return this.usersService.findOne(userId);
   }
 
   @Get(':id')

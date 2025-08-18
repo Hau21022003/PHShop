@@ -1,5 +1,4 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -13,56 +12,89 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { RegisterBody, RegisterBodyType } from "@/schemas/auth.schema";
-import { useAppContext } from "@/app/app-provider";
 import { useRouter } from "next/navigation";
 import authApiRequest from "@/api-requests/auth";
 import { handleErrorApi } from "@/lib/error";
+import { cartApiRequest } from "@/api-requests/cart";
+import { cartStorage } from "@/lib/user/cart-storage";
+import { useAppContext } from "@/app/app-provider";
+import { CartItemBodyType } from "@/schemas/cart.schema";
 
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [loading, setLoading] = useState(false)
-  const { setUser } = useAppContext()
-  const router = useRouter()
+  const { setUser } = useAppContext();
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
-      email: '',
-      password: '',
-      confirmPassword: ''
-    }
-  })
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  // 2. Define a submit handler.
-  async function onSubmit(values: RegisterBodyType) {
-    if (loading) return
-    setLoading(true)
+  const syncCartOnSignup = async () => {
     try {
-      await authApiRequest.register(values)
-
-      // await authApiRequest.auth({
-      //   sessionToken: result.payload.data.accessToken,
-      //   expiresAt: result.payload.data.accessTokenExpiresAt,
-      //   role: result.payload.data.account.role
-      // })
-      // setUser(result.payload.data.account)
-
-      router.push('/login')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cartItems = await cartStorage.getCart();
+      const cart: CartItemBodyType[] = cartItems.map(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ({ _id, createdDate, updatedDate, ...rest }) => rest
+      );
+      if (cartItems.length !== 0) {
+        await cartApiRequest.createBatch(cart);
+        cartStorage.clearCart();
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({
         error,
-        setError: form.setError
-      })
+      });
+    }
+  };
+
+  async function onSubmit(values: RegisterBodyType) {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const rsp = await authApiRequest.register(values);
+      const { accessToken, accessTokenExpiresAt, account } = rsp.payload;
+
+      console.log("account", account);
+      console.log("accessToken", accessToken);
+      console.log("accessTokenExpiresAt", accessTokenExpiresAt);
+      await authApiRequest.auth({
+        sessionToken: accessToken,
+        expiresAt: accessTokenExpiresAt,
+        role: account.role,
+      });
+      setUser(account);
+
+      await syncCartOnSignup();
+
+      // router.push("/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      handleErrorApi({
+        error,
+        setError: form.setError,
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
+
+  useEffect;
+
+  useEffect(() => {
+    router.prefetch("/");
+  }, [router]);
 
   return (
     <Form {...form}>
@@ -126,7 +158,11 @@ export function SignUpForm() {
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
                     tabIndex={-1}
                   >
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showConfirmPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
                   </button>
                 </div>
               </FormControl>
@@ -134,9 +170,6 @@ export function SignUpForm() {
             </FormItem>
           )}
         />
-        {/* <Button className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white">
-          Create account
-        </Button> */}
         <Button
           disabled={loading}
           className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white"

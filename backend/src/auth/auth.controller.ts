@@ -32,11 +32,11 @@ export class AuthController {
     return this.authService.signUp(createUserDto);
   }
 
-  @Public()
-  @Get('verify-email/:token')
-  verifyEmail(@Param('token') token: string) {
-    return this.authService.verifyEmail(token);
-  }
+  // @Public()
+  // @Get('verify-email/:token')
+  // verifyEmail(@Param('token') token: string) {
+  //   return this.authService.verifyEmail(token);
+  // }
 
   @Public()
   @UseGuards(LocalAuthGuard)
@@ -68,28 +68,17 @@ export class AuthController {
   @Public()
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth() {}
+  async googleAuth() {
+    console.log('Google auth endpoint hit');
+  }
 
   @Public()
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res: Response) {
     const tokens = await this.authService.loginWithGoogle(req.user);
-    console.log(req.user);
-    res.cookie('sessionToken', tokens.accessToken, {
-      maxAge: tokens.accessTokenExpiresAt.getTime(),
-      sameSite: 'none',
-      secure: true,
-      httpOnly: true,
-    });
-    res.cookie('role', tokens.account.role, {
-      maxAge: tokens.accessTokenExpiresAt.getTime(),
-      sameSite: 'none',
-      secure: true,
-      httpOnly: true,
-    });
     res.redirect(
-      `${this.configService.get('FRONT_END_HOST')}:${this.configService.get('FRONT_END_PORT')}/google/success?accessToken=${tokens.accessToken}&accessTokenExpiresAt=${tokens.accessTokenExpiresAt}`,
+      `${this.configService.get('CLIENT_URL')}/google/success?accessToken=${tokens.accessToken}&accessTokenExpiresAt=${tokens.accessTokenExpiresAt}`,
     );
   }
 }
