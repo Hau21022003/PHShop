@@ -24,8 +24,12 @@ import { productApiRequest } from "@/api-requests/product";
 import { toast } from "sonner";
 interface ProductDetailProps {
   product: ProductWithCategoryType;
+  loadProducts: () => void;
 }
-export default function ProductDetail({ product }: ProductDetailProps) {
+export default function ProductDetail({
+  product,
+  loadProducts,
+}: ProductDetailProps) {
   const form = useForm<StockBodyType>({
     resolver: zodResolver(StockBody),
     defaultValues: {
@@ -40,6 +44,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const updateStoke = async () => {
     try {
       await productApiRequest.updateStock(product._id, form.getValues());
+      loadProducts();
       toast.success("Success", {
         description: "Update stock success",
         duration: 3000,

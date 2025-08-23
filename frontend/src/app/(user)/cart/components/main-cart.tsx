@@ -1,18 +1,11 @@
 "use client";
 import { useCartContext } from "@/app/(user)/cart/cart-provider";
 import CartItem from "@/app/(user)/cart/components/cart-item";
-import { cartService } from "@/lib/user/cart-service";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment } from "react";
 
 export default function MainCart() {
-  const { cartItems, setCartItems } = useCartContext();
-  const load = async () => {
-    const cartItems = await cartService.getCart();
-    setCartItems(cartItems || []);
-  };
-  useEffect(() => {
-    load();
-  }, []);
+  const { cartItems } = useCartContext();
+
   return (
     <div>
       <div className="space-y-6">
@@ -24,6 +17,11 @@ export default function MainCart() {
             )}
           </Fragment>
         ))}
+        {cartItems.length === 0 && (
+          <div className="flex justify-center">
+            <p className="text-xl font-medium">Your cart is empty</p>
+          </div>
+        )}
       </div>
     </div>
   );

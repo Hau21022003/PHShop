@@ -1,8 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import { ProductWithCategoryType } from "@/schemas/product.schema";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
-import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -25,9 +22,9 @@ export default function ProductItem({ product }: ProductItemProps) {
   return (
     <div
       className="w-full flex flex-col gap-2 items-center"
-      onClick={() => {
-        redirect(`/product-detail/${product._id}`);
-      }}
+      // onClick={() => {
+      //   redirect(`/product-detail/${product._id}`);
+      // }}
     >
       <div className="relative group">
         {/* Ảnh 1 */}
@@ -49,15 +46,6 @@ export default function ProductItem({ product }: ProductItemProps) {
         <div className="cursor-pointer font-bold whitespace-nowrap text-xl absolute bottom-0 left-1/2 -translate-x-1/2 bg-orange-500 bg-opacity-80 text-white py-2 px-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           BUY NOW
         </div>
-
-        {/* Icon Heart */}
-        <button className="cursor-pointer absolute bottom-1 right-2">
-          <FontAwesomeIcon
-            icon={faHeartRegular}
-            className="text-orange-500 w-20 h-20"
-            size="2x"
-          />
-        </button>
       </div>
       <Link
         href={``}

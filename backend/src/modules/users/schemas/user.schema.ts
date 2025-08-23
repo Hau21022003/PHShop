@@ -9,6 +9,26 @@ export enum UserType {
   ENTERPRISE = 'enterprise',
 }
 
+export class ContactDetails {
+  @Prop({ required: true })
+  fullName: string;
+
+  @Prop({ required: true })
+  phoneNumber: string;
+
+  @Prop({ required: true })
+  province: string;
+
+  @Prop({ required: true })
+  district: string;
+
+  @Prop({ required: true })
+  ward: string;
+
+  @Prop({ required: true })
+  address: string;
+}
+
 @Schema({ timestamps: true })
 export class User extends BaseSchema {
   @Prop()
@@ -29,6 +49,9 @@ export class User extends BaseSchema {
     default: Role.USER,
   })
   role: Role;
+
+  @Prop({ type: ContactDetails })
+  contactDetails?: ContactDetails;
 
   @Prop({ default: true })
   isActive: boolean;

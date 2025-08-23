@@ -38,6 +38,11 @@ export class CartController {
     return this.cartService.findAll(userId);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string, @GetUser('sub') userId: string) {
+    return this.cartService.findOne(id, userId);
+  }
+
   @Put(':id')
   update(
     @Param('id') id: string,

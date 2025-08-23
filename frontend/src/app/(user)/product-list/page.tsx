@@ -15,6 +15,7 @@ import {
 import { buildPaginatedMeta } from "@/utils/pagination";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Settings2 } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -47,7 +48,7 @@ export default function ProductListPage() {
     const gender = (searchParams.get("gender") as Gender) ?? undefined;
     const sale = searchParams.get("sale");
     setValue("filter.gender", gender);
-    
+
     if (sale) {
       setValue("filter.sale", true);
     } else {
@@ -138,7 +139,9 @@ export default function ProductListPage() {
       <div className="lg:flex-1">
         <div className="pb-10 grid grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((product) => (
-            <ProductItem key={product._id} product={product} />
+            <Link key={product._id} href={`/product-detail/${product._id}`}>
+              <ProductItem product={product} />
+            </Link>
           ))}
         </div>
       </div>

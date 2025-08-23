@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Heart, Menu, ShoppingBag, User } from "lucide-react";
+import { useState } from "react";
+import { Menu, ShoppingBag, User } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -115,24 +115,9 @@ export default function UserHeader() {
             </HoverCardContent>
           </HoverCard>
           {/* Favourite */}
-          <HoverCard>
-            <HoverCardTrigger>
-              <Link
-                href={""}
-                className="flex flex-col items-center cursor-pointer"
-              >
-                <div className="relative">
-                  <Heart className="w-6 h-6" />
-                  <p className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-orange-500">
-                    45
-                  </p>
-                </div>
-              </Link>
-            </HoverCardTrigger>
-            <HoverCardContent>
-              The React Framework – created and maintained by @vercel.
-            </HoverCardContent>
-          </HoverCard>
+          {/* <Link href={"favorite"} className="flex flex-col items-center cursor-pointer">
+            <Heart className="w-6 h-6" />
+          </Link> */}
 
           {/* Profile icon */}
           {!isAuthenticated && (
@@ -156,13 +141,22 @@ export default function UserHeader() {
               </HoverCardTrigger>
               <HoverCardContent className="w-44 p-0 overflow-hidden">
                 <div className="flex flex-col">
-                  <Link className="w-full p-3 py-2 hover:bg-gray-100" href={`/profile`}>
+                  <Link
+                    className="w-full p-3 py-2 hover:bg-gray-100"
+                    href={`/profile`}
+                  >
                     My Profile
                   </Link>
-                  <Link className="w-full p-3 py-2 hover:bg-gray-100" href={`/order`}>
+                  <Link
+                    className="w-full p-3 py-2 hover:bg-gray-100"
+                    href={`/order`}
+                  >
                     Order
                   </Link>
-                  <Link className="w-full p-3 py-2 hover:bg-gray-100" href={`/logout`}>
+                  <Link
+                    className="w-full p-3 py-2 hover:bg-gray-100"
+                    href={`/logout`}
+                  >
                     Logout
                   </Link>
                 </div>

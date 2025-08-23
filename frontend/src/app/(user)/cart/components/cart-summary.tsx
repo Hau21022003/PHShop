@@ -17,7 +17,7 @@ export default function CartSummary() {
           Checkout
         </div>
       ) : (
-        <Link href={`/checkout/${selectedCartIds.join(",")}`}>
+        <Link href={`/checkout?cartItemIds=${selectedCartIds.join(",")}`}>
           <p className="w-full p-3 bg-black text-white uppercase text-center cursor-pointer">
             Checkout
           </p>

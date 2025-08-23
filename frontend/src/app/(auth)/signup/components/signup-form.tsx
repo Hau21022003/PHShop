@@ -19,9 +19,11 @@ import { useRouter } from "next/navigation";
 import authApiRequest from "@/api-requests/auth";
 import { handleErrorApi } from "@/lib/error";
 import { cartApiRequest } from "@/api-requests/cart";
-import { cartStorage } from "@/lib/user/cart-storage";
+import { cartStorage } from "@/lib/user/cart/cart-storage";
 import { useAppContext } from "@/app/app-provider";
 import { CartItemBodyType } from "@/schemas/cart.schema";
+import { contactDetailsStorage } from "@/lib/user/contact-details/contact-detail-storage";
+import { contactDetailsService } from "@/lib/user/contact-details/contact-detail-service";
 
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -59,6 +61,19 @@ export function SignUpForm() {
     }
   };
 
+  const syncContactDetails = async () => {
+    try {
+      const contactDetails = contactDetailsStorage.getContactDetails();
+      if (contactDetails)
+        contactDetailsService.saveContactDetails(contactDetails);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      handleErrorApi({
+        error,
+      });
+    }
+  };
+
   async function onSubmit(values: RegisterBodyType) {
     if (loading) return;
     setLoading(true);
@@ -66,9 +81,6 @@ export function SignUpForm() {
       const rsp = await authApiRequest.register(values);
       const { accessToken, accessTokenExpiresAt, account } = rsp.payload;
 
-      console.log("account", account);
-      console.log("accessToken", accessToken);
-      console.log("accessTokenExpiresAt", accessTokenExpiresAt);
       await authApiRequest.auth({
         sessionToken: accessToken,
         expiresAt: accessTokenExpiresAt,
@@ -77,8 +89,8 @@ export function SignUpForm() {
       setUser(account);
 
       await syncCartOnSignup();
-
-      // router.push("/");
+      await syncContactDetails();
+      router.push("/");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({

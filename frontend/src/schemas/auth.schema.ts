@@ -1,5 +1,4 @@
 import { AccountSchema } from "@/schemas/account.schema";
-import { createBaseResp } from "@/schemas/common.schema";
 import z from "zod";
 
 export const RegisterBody = z
@@ -65,7 +64,6 @@ export const RegisterRes = z.object({
   refreshTokenExpiresAt: z.string(),
   account: AccountSchema,
 });
-// export const RegisterRes = createBaseResp(RegisterSchema);
 export type RegisterResType = z.TypeOf<typeof RegisterRes>;
 
 export const LoginBody = z

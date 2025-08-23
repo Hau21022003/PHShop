@@ -95,6 +95,11 @@ export class CreateProductDto {
   @Transform(({ value }) => parseInt(value, 10))
   discount: number;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  weight?: number;
+
   @IsNotEmpty()
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))

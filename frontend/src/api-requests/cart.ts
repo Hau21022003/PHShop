@@ -16,4 +16,6 @@ export const cartApiRequest = {
     http.put<CartItemResType>(`${CART_BASE}/${id}`, body),
   removeCartItem: (id: string) =>
     http.delete<CartItemResType>(`${CART_BASE}/${id}`),
+  findCartItem: (id: string) =>
+    http.get<CartItemResType>(`${CART_BASE}/${id}`),
 };

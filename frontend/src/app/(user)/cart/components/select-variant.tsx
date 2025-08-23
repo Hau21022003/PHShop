@@ -1,11 +1,11 @@
 "use client";
 import { useCartContext } from "@/app/(user)/cart/cart-provider";
 import { useUserContext } from "@/app/(user)/user-provider";
-import { EntityError, handleErrorApi } from "@/lib/error";
-import { cartService } from "@/lib/user/cart-service";
+import { handleErrorApi } from "@/lib/error";
+import { cartService } from "@/lib/user/cart/cart-service";
 import { CartItemBody, CartItemResType } from "@/schemas/cart.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 
 interface SelectVariantProps {

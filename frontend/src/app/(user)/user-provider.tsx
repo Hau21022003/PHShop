@@ -1,7 +1,7 @@
 "use client";
 import { handleErrorApi } from "@/lib/error";
-import { cartService } from "@/lib/user/cart-service";
-import { cartStorage } from "@/lib/user/cart-storage";
+import { cartService } from "@/lib/user/cart/cart-service";
+import { cartStorage } from "@/lib/user/cart/cart-storage";
 import { CartItemRes, CartItemResType } from "@/schemas/cart.schema";
 import {
   createContext,

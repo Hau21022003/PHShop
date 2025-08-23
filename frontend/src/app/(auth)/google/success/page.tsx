@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { userApiRequest } from "@/api-requests/user";
 import { useAppContext } from "@/app/app-provider";
 import { CartItemBodyType } from "@/schemas/cart.schema";
-import { cartStorage } from "@/lib/user/cart-storage";
+import { cartStorage } from "@/lib/user/cart/cart-storage";
 import { cartApiRequest } from "@/api-requests/cart";
 import { handleErrorApi } from "@/lib/error";
 import { authStorage } from "@/lib/auth/auth-storage";

@@ -76,6 +76,9 @@ export class Product extends Document {
   @Prop()
   discount?: number;
 
+  @Prop()
+  weight?: number;
+
   @Prop({ default: true })
   active: boolean;
 

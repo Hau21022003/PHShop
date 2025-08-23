@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import {
-  PanelLeftClose,
   LogOut,
-  PanelRightClose,
   Package,
   ClipboardList,
   ShoppingBag,
   MessageCircleMore,
   StarHalf,
+  Car,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import SaveFreeShipping from "@/app/admin/components/save-free-shipping";
 
 const SidebarItem = ({
   icon,
@@ -50,6 +50,10 @@ const SidebarItem = ({
 const AdminSidebar = () => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openSaveFreeShipping, setOpenSaveFreeShipping] = useState(false);
+
+  const onOpenFreeShipping = () => setOpenSaveFreeShipping(true);
+  const onCloseFreeShipping = () => setOpenSaveFreeShipping(false);
 
   const MainMenuOptions = [
     {
@@ -98,16 +102,20 @@ const AdminSidebar = () => {
         {!isCollapsed && (
           <div className="flex items-center gap-3">
             {!isCollapsed && (
-              <h1 className="text-xl font-medium tracking-wider">Anna Shop</h1>
+              <Link href={`/product-list`}>
+                <h1 className="cursor-pointer text-xl font-medium tracking-wider ">
+                  Anna Shop
+                </h1>
+              </Link>
             )}
           </div>
         )}
-        <div
+        {/* <div
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="lg:block hidden px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer"
         >
           {isCollapsed ? <PanelRightClose /> : <PanelLeftClose />}
-        </div>
+        </div> */}
       </div>
       <div
         className="flex-1 flex flex-col justify-between lg:overflow-y-auto"
@@ -143,9 +151,28 @@ const AdminSidebar = () => {
                 isCollapsed={isCollapsed}
               />
             ))}
+            <button
+              onClick={onOpenFreeShipping}
+              className={`flex items-center justify-between py-2 px-3 rounded-lg transition cursor-pointer`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="text-gray-500">
+                  <Car className="w-6 h-6" />
+                </div>
+                {!isCollapsed && (
+                  <span className="font-medium text-gray-500 leading-none tracking-wide">
+                    Shipping Fee
+                  </span>
+                )}
+              </div>
+            </button>
           </nav>
         </div>
       </div>
+      <SaveFreeShipping
+        open={openSaveFreeShipping}
+        onClose={onCloseFreeShipping}
+      />
 
       <div className="space-y-4 pt-4">
         {/* Divider */}

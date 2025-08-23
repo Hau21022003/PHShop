@@ -347,7 +347,10 @@ export default function ProductListPage() {
                   {expandedRows.has(product._id) && (
                     <TableRow>
                       <TableCell colSpan={5} className="bg-white rounded-md">
-                        <ProductDetail product={product} />
+                        <ProductDetail
+                          product={product}
+                          loadProducts={loadProducts}
+                        />
                       </TableCell>
                     </TableRow>
                   )}

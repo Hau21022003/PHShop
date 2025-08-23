@@ -6,14 +6,6 @@ import {
 } from 'src/modules/product/schema/product.schema';
 import { User } from 'src/modules/users/schemas/user.schema';
 
-export class CartItemVariant {
-  @Prop({ required: true })
-  title: string;
-
-  @Prop({ required: true })
-  option: string;
-}
-
 export class ProductSnapshot {
   @Prop({ required: true })
   name: string;

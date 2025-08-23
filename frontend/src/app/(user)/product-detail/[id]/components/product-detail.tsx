@@ -9,13 +9,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CartItemBody } from "@/schemas/cart.schema";
 import { handleErrorApi } from "@/lib/error";
-import { cartService } from "@/lib/user/cart-service";
+import { cartService } from "@/lib/user/cart/cart-service";
 import { useUserContext } from "@/app/(user)/user-provider";
 import { toast } from "sonner";
+import { useProductDetailContext } from "@/app/(user)/product-detail/[id]/product-detail-provider";
+import Link from "next/link";
+import { CheckoutPayload } from "@/schemas/checkout.schema";
 interface ProductDetailProps {
   product?: ProductDetailType;
 }
 export default function ProductDetail({ product }: ProductDetailProps) {
+  const { setSelectedImage } = useProductDetailContext();
   const { loadCart } = useUserContext();
   const getPriceDiscount = (price: number, discount: number) => {
     const rawPriceDiscount =
@@ -153,7 +157,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       // await cartApiRequest.createCartItem(form.getValues());
       await cartService.addCartItem(form.getValues());
       toast.success("Success", {
-        duration: 3000,
+        duration: 1000,
         description: "Product has been added to your cart",
       });
       loadCart();
@@ -161,6 +165,29 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({ error });
+    }
+  };
+
+  const encodeBase64 = (str: string) => {
+    return btoa(unescape(encodeURIComponent(str)));
+  };
+
+  const generateCheckoutPayload = () => {
+    if (isVariantSelectionIncomplete()) {
+      setErrorSelectVariant(true);
+      return "";
+    }
+    try {
+      const obj: CheckoutPayload = {
+        product: form.getValues("product"),
+        quantity: form.getValues("quantity"),
+        attributes: form.getValues("attributeVariant"),
+      };
+      const str = JSON.stringify(obj);
+      const encoded = encodeBase64(str);
+      return encoded;
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -287,9 +314,10 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                         ? "border-black"
                         : "border-gray-300"
                     }`}
-                    onClick={() =>
-                      handleSelectVariantOption(variant.title, option.option)
-                    }
+                    onClick={() => {
+                      handleSelectVariantOption(variant.title, option.option);
+                      if (option.image) setSelectedImage(option.image);
+                    }}
                   >
                     {option.image && (
                       <img
@@ -374,9 +402,23 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           <FontAwesomeIcon icon={faCartPlus} size="lg" className="w-6 h-6" />
           <p>Add To Bag</p>
         </button>
-        <button className="cursor-pointer w-full lg:w-50 p-4 flex items-center justify-center border border-gray-400 font-medium">
-          Buy Now
-        </button>
+        {isVariantSelectionIncomplete() ? (
+          <button
+            onClick={() => {
+              if (isVariantSelectionIncomplete()) setErrorSelectVariant(true);
+            }}
+            // disabled={isVariantSelectionIncomplete()}
+            className="cursor-pointer w-full lg:w-50 p-4 flex items-center justify-center border border-gray-400 font-medium"
+          >
+            Buy Now
+          </button>
+        ) : (
+          <Link href={`/checkout?payload=${generateCheckoutPayload()}`}>
+            <p className="cursor-pointer w-full lg:w-50 p-4 flex items-center justify-center border border-gray-400 font-medium">
+              Buy Now
+            </p>
+          </Link>
+        )}
       </div>
     </div>
   );

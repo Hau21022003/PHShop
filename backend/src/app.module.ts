@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -11,11 +12,15 @@ import { mongooseConfig } from 'src/config/db.config';
 import { CartModule } from 'src/modules/cart/cart.module';
 import { CategoryModule } from 'src/modules/category/category.module';
 import { DownloadModule } from 'src/modules/download/download.module';
+import { OrdersModule } from 'src/modules/orders/orders.module';
 import { ProductModule } from 'src/modules/product/product.module';
+import { ProvinceModule } from 'src/modules/province/province.module';
+import { SettingsModule } from 'src/modules/settings/settings.module';
 import { UsersModule } from 'src/modules/users/users.module';
 
 @Module({
   imports: [
+    HttpModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath: '.env',
@@ -28,6 +33,9 @@ import { UsersModule } from 'src/modules/users/users.module';
     ProductModule,
     DownloadModule,
     CartModule,
+    ProvinceModule,
+    OrdersModule,
+    SettingsModule,
   ],
   providers: [
     AppService,

@@ -372,7 +372,10 @@ export default function SaveProductPage() {
                     control={form.control}
                     name="gender"
                     render={({ field }) => (
-                      <FormItem className="space-y-1 mt-6 flex items-center gap-8">
+                      <FormItem
+                        className="space-y-1 mt-6 flex flex-col gap-4 sm:flex-row 
+                        sm:items-center sm:gap-8"
+                      >
                         <FormLabel className="mb-0 text-gray-600 leading-none">
                           Gender
                         </FormLabel>
@@ -380,7 +383,7 @@ export default function SaveProductPage() {
                           <RadioGroup
                             onValueChange={field.onChange}
                             value={field.value}
-                            className="flex items-center gap-6"
+                            className="flex items-center flex-wrap gap-6"
                           >
                             <FormItem className="flex items-center gap-3">
                               <FormControl>
@@ -545,6 +548,44 @@ export default function SaveProductPage() {
                   handleRemoveImage={handleRemoveImage}
                   handleReplaceImage={handleReplaceImage}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-base font-medium">Weight</p>
+                <div className="bg-gray-50 p-4 border-2 border-gray-200 rounded-md space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="weight"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormLabel className="text-gray-600">
+                          Product weight
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              className="bg-gray-200"
+                              placeholder="Enter product weight"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === "" ? undefined : parseFloat(val)
+                                );
+                              }}
+                            />
+                            <span className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center bg-gray-500 text-white text-sm rounded">
+                              kg
+                            </span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <p className="text-base font-medium">Category</p>

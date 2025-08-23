@@ -17,11 +17,6 @@ export class CartService {
     private readonly productService: ProductService,
   ) {}
 
-  // async create(createCartDto: CreateCartItemDto, userId: string) {
-  //   const cartItem = await this.processCartItem(userId, createCartDto);
-  //   const created = new this.cartItemModel(cartItem);
-  //   return created.save();
-  // }
   async create(createCartDto: CreateCartItemDto, userId: string) {
     const existingCartItems = await this.cartItemModel
       .find({ user: userId, product: createCartDto.product })
@@ -52,11 +47,15 @@ export class CartService {
   }
 
   async createBatch(createCartDto: CreateCartItemDto[], userId: string) {
-    const cartItems = await Promise.all(
-      createCartDto.map(async (dto) => await this.processCartItem(userId, dto)),
-    );
+    const results = [];
 
-    return this.cartItemModel.insertMany(cartItems);
+    for (const dto of createCartDto) {
+      // tái sử dụng create() để xử lý gộp + stock
+      const item = await this.create(dto, userId);
+      results.push(item);
+    }
+
+    return results;
   }
 
   findAll(userId: string) {
@@ -68,23 +67,19 @@ export class CartService {
       .exec();
   }
 
-  // async update(id: string, updateCartDto: UpdateCartItemDto, userId: string) {
-  //   const updatedCartItem = await this.cartItemModel
-  //     .findOneAndUpdate(
-  //       { _id: id, user: userId },
-  //       { $set: updateCartDto },
-  //       { new: true },
-  //     )
-  //     .populate('product')
-  //     .lean()
-  //     .exec();
+  async findOne(id: string, userId: string) {
+    const CartItem = await this.cartItemModel
+      .findOne({ user: userId, _id: id })
+      .populate('product')
+      .lean();
 
-  //   if (!updatedCartItem) {
-  //     throw new NotFoundException(`Cart item with id ${id} not found`);
-  //   }
+    if (!CartItem) {
+      throw new NotFoundException(`Cart item with id ${id} not found`);
+    }
 
-  //   return updatedCartItem;
-  // }
+    return CartItem;
+  }
+
   async update(id: string, updateCartDto: UpdateCartItemDto, userId: string) {
     const existingCartItem = await this.cartItemModel
       .findOne({ _id: id, user: userId })
