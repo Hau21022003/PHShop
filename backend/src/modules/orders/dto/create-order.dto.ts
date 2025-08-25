@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsEnum,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
@@ -11,7 +10,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IsExists } from 'src/common/validators/is-exist-constraint.validator';
-import { StatusOrders } from 'src/modules/orders/enum/status.enum';
 import { User } from 'src/modules/users/schemas/user.schema';
 
 export class ContactDetailsDto {
@@ -82,10 +80,6 @@ export class OrderItemDto {
   @IsNumber()
   @Min(1)
   quantity: number;
-
-  // @ValidateNested()
-  // @Type(() => ProductSnapshotDto)
-  // productSnapshot: ProductSnapshotDto;
 }
 
 export class CreateOrderDto {
@@ -94,22 +88,10 @@ export class CreateOrderDto {
   @Type(() => OrderItemDto)
   items: OrderItemDto[];
 
-  // @IsMongoId()
-  // @IsExists(User)
+  @IsMongoId()
+  @IsExists(User)
   @IsOptional()
   user?: string;
-
-  // @IsNumber()
-  // @Min(0)
-  // totalAmount: number;
-
-  // @IsNumber()
-  // @Min(0)
-  // deliveryPrice: number;
-
-  // @IsEnum(StatusOrders)
-  // @IsOptional()
-  // status?: StatusOrders;
 
   @IsString()
   @IsOptional()

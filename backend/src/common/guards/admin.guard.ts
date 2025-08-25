@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtPayload } from 'src/auth/strategies/jwt.strategy';
+import { JwtPayload } from 'src/auth/types/jwt-payload';
+// import { JwtPayload } from 'src/auth/strategies/jwt.strategy';
 import { UsersService } from 'src/modules/users/users.service';
 
 @Injectable()

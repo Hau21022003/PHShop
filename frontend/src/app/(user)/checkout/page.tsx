@@ -13,7 +13,7 @@ import {
   CreateOrderSchema,
   CreateOrderType,
   OrderItemType,
-} from "@/schemas/order.chema";
+} from "@/schemas/order.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -92,10 +92,9 @@ export default function CheckoutPage() {
   };
 
   const onSubmit = async (data: CreateOrderType) => {
-    // console.log("data", data);
     try {
       await contactDetailsService.saveContactDetails(data.contactDetails);
-      await orderApiRequest.createOrder(data);
+      const order = (await orderApiRequest.createOrder(data)).payload;
       if (cartItemIds.length !== 0) {
         cartItemIds.forEach(async (cartItemId) => {
           try {
@@ -107,7 +106,7 @@ export default function CheckoutPage() {
         });
         loadCart();
       }
-      router.push("/order-success");
+      router.push(`/order-success?orderId=${order.code}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({ error });

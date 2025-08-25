@@ -2,7 +2,7 @@
 import { orderApiRequest } from "@/api-requests/order";
 import { productApiRequest } from "@/api-requests/product";
 import { handleErrorApi } from "@/lib/error";
-import { CreateOrderType, ShippingFeeSchema } from "@/schemas/order.chema";
+import { CreateOrderType, ShippingFeeSchema } from "@/schemas/order.schema";
 import { ProductResType } from "@/schemas/product.schema";
 import React, { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";

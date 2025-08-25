@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { BaseSchema } from 'src/common/schemas/base.schema';
 import { Role } from 'src/modules/users/enums/role.enum';
 
 export type UserDocument = HydratedDocument<User>;
@@ -30,7 +29,7 @@ export class ContactDetails {
 }
 
 @Schema({ timestamps: true })
-export class User extends BaseSchema {
+export class User {
   @Prop()
   fullName: string;
 

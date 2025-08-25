@@ -55,4 +55,8 @@ export class FindAllDto extends PaginationQueryDto {
   @IsOptional()
   @Type(() => FilterDto)
   filter?: FilterDto;
+
+  @IsBoolean()
+  @IsOptional()
+  active?: boolean;
 }

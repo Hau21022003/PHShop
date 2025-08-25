@@ -14,4 +14,16 @@ export class ProvinceService {
   getWards(districtId: string) {
     return commune.filter((w) => w.idDistrict === districtId);
   }
+
+  findOneProvince(provinceId: string) {
+    return province.find((item) => item.idProvince === provinceId);
+  }
+
+  findOneDistrict(districtId: string) {
+    return district.find((item) => item.idDistrict === districtId);
+  }
+
+  findOneWard(wardId: string) {
+    return commune.find((item) => item.idCommune === wardId);
+  }
 }

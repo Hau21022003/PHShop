@@ -9,7 +9,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { handleErrorApi } from "@/lib/error";
-import { CreateOrderType } from "@/schemas/order.chema";
+import { CreateOrderType } from "@/schemas/order.schema";
 import {
   DistrictType,
   ProvinceType,

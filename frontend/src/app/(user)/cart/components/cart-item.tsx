@@ -210,7 +210,7 @@ export default function CartItem({ item }: CartItemProps) {
             <p className="cursor-pointer uppercase underline underline-offset-2">
               Move to favorites
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-1 space-x-3">
               <p className="text-lg font-medium">
                 {getPriceDiscount(
                   item.quantity * item.snapshot.price,

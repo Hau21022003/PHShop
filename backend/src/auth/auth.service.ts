@@ -11,6 +11,8 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import EmailHelper from 'src/common/helper/email.helper';
 import { UserDocument } from 'src/modules/users/schemas/user.schema';
+import { JwtPayload } from 'src/auth/types/jwt-payload';
+import { Role } from 'src/modules/users/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -26,12 +28,6 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(pass, user.password);
     if (!passwordMatches) return null;
 
-    // if (!user.emailActive) {
-    //   throw new BadRequestException(
-    //     'Account not activated. Please check your email to verify.',
-    //   );
-    // }
-
     if (!user.isActive) {
       throw new BadRequestException(
         'Your account is locked. Please contact support for assistance.',
@@ -42,7 +38,7 @@ export class AuthService {
   }
 
   async signIn(user: UserDocument) {
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return {
       account: user,
@@ -69,44 +65,17 @@ export class AuthService {
       password: hash,
     });
 
-    const tokens = await this.getTokens(newUser._id.toString(), newUser.email);
+    const tokens = await this.getTokens(
+      newUser._id.toString(),
+      newUser.email,
+      newUser.role,
+    );
     await this.updateRefreshToken(newUser._id.toString(), tokens.refreshToken);
     return {
       account: newUser,
       ...tokens,
     };
   }
-
-  private async generateVerificationToken(userId: string) {
-    return await this.jwtService.signAsync(
-      { userId: userId },
-      {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: '1h',
-      },
-    );
-  }
-
-  // async verifyEmail(token: string) {
-  //   let decoded: any;
-  //   try {
-  //     decoded = await this.jwtService.verifyAsync(token, {
-  //       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-  //     });
-  //   } catch (error) {
-  //     if (error.name === 'TokenExpiredError') {
-  //       throw new BadRequestException('Token has expired');
-  //     } else if (error.name === 'JsonWebTokenError') {
-  //       throw new BadRequestException('Invalid token');
-  //     } else {
-  //       throw new BadRequestException('Could not verify token');
-  //     }
-  //   }
-  //   const user = await this.usersService.findOne(decoded.userId);
-  //   if (!user) throw new BadRequestException('User not found');
-  //   user.emailActive = true;
-  //   await this.usersService.update(user._id.toString(), user);
-  // }
 
   async logout(userId: string) {
     return await this.usersService.update(userId, { refreshToken: null });
@@ -121,7 +90,11 @@ export class AuthService {
       user.refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user._id.toString(), user.email);
+    const tokens = await this.getTokens(
+      user._id.toString(),
+      user.email,
+      user.role,
+    );
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
     return tokens;
   }
@@ -133,8 +106,8 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: string, email: string) {
-    const payload = { sub: userId, email };
+  async getTokens(userId: string, email: string, role: Role) {
+    const payload: JwtPayload = { sub: userId, email, role };
     const accessTokenExpiresIn = this.configService.get<string>(
       'JWT_ACCESS_EXPIRES_IN',
     );
@@ -229,7 +202,11 @@ export class AuthService {
         avatar: user.picture,
       });
     }
-    const tokens = await this.getTokens(userExists.id, userExists.email);
+    const tokens = await this.getTokens(
+      userExists.id,
+      userExists.email,
+      userExists.role,
+    );
     await this.updateRefreshToken(userExists.id, tokens.refreshToken);
     return {
       account: userExists,

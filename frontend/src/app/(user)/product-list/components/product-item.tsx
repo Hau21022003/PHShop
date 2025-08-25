@@ -2,7 +2,6 @@
 import { ProductWithCategoryType } from "@/schemas/product.schema";
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 interface ProductItemProps {
   product: ProductWithCategoryType;
@@ -20,12 +19,7 @@ export default function ProductItem({ product }: ProductItemProps) {
     }).format(priceDiscount);
   };
   return (
-    <div
-      className="w-full flex flex-col gap-2 items-center"
-      // onClick={() => {
-      //   redirect(`/product-detail/${product._id}`);
-      // }}
-    >
+    <div className="w-full flex flex-col gap-2 items-center">
       <div className="relative group">
         {/* Ảnh 1 */}
         <img
@@ -48,7 +42,7 @@ export default function ProductItem({ product }: ProductItemProps) {
         </div>
       </div>
       <Link
-        href={``}
+        href={`/product-detail/${product._id}`}
         className="text-base hover:text-orange-500 hover:underline hover:underline-offset-4 line-clamp-1"
       >
         {product.name}

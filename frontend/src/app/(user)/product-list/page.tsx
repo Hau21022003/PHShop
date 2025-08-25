@@ -33,6 +33,7 @@ export default function ProductListPage() {
         categoryIds: [],
         price: [],
       },
+      active: true,
     },
   });
   const { setValue } = bodyForm;

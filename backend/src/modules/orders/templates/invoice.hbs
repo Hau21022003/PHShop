@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 12px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { border: 1px solid #ddd; padding: 8px; }
+      th { background: #f2f2f2; }
+    </style>
+  </head>
+  <body>
+    <h2>Invoice #{{code}}</h2>
+    <div style="display: flex; gap: 10px;">
+      <p style="flex: 1;">For</p>
+      <p style="flex: 1;">From</p>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 0px;">
+      <p style="flex: 1;">{{contactDetails.fullName}}</p>
+      <p style="flex: 1;">Anna Shop</p>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 0px;">
+      <p style="flex: 1;">{{contactDetails.phoneNumber}}</p>
+      <p style="flex: 1;">0385016917</p>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 0px;">
+      <p style="flex: 1;">{{contactDetails.ward}}, {{contactDetails.district}}, {{contactDetails.province}}</p>
+      <p style="flex: 1;">Dương Minh Châu, Tây Ninh</p>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 0px;">
+      <p style="flex: 1;">{{contactDetails.address}}</p>
+      <p style="flex: 1;">Đường 312</p>
+    </div>
+    <p style="flex: 1;">
+      <span style="font-weight: 600;">Note:</span>
+      <span style="font-weight: 600; font-style: oblique;">{{note}}</span>
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Variant</th>
+          <th>Qty</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+        <tr>
+          <td>{{this.productSnapshot.name}}</td>
+          <td>
+            {{#each this.attributeVariant}}
+              {{this.title}} - {{this.option}}{{#unless @last}}, {{/unless}}
+            {{/each}}</td>
+          <td>{{this.quantity}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <h3 style="text-align: end; margin-top: 10px;">Total: {{formattedTotalAmount}}</h3>
+  </body>
+</html>

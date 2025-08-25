@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { StatusOrders } from 'src/modules/orders/enum/status.enum';
+import mongoose, { Types } from 'mongoose';
+import { OrderStatus } from 'src/modules/orders/enum/status.enum';
 import {
   AttributeVariant,
   Product,
@@ -57,6 +57,9 @@ export class OrderItem {
 
 @Schema({ timestamps: true })
 export class Order {
+  @Prop({ unique: true })
+  code: string;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
@@ -71,10 +74,10 @@ export class Order {
 
   @Prop({
     type: String,
-    enum: StatusOrders,
-    default: StatusOrders.PENDING,
+    enum: OrderStatus,
+    default: OrderStatus.PENDING,
   })
-  status: StatusOrders;
+  status: OrderStatus;
 
   @Prop()
   note: string;

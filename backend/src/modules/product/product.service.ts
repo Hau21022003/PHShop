@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import mongoose, { Model } from 'mongoose';
@@ -41,7 +45,11 @@ export class ProductService {
   }
 
   async findAll(dto: FindAllDto) {
-    const filter: Record<string, any> = {};
+    const filter: Record<string, any> = {
+      // active: true,
+    };
+
+    if (dto.active) filter.active = true;
 
     if (dto.search) {
       filter.name = { $regex: dto.search, $options: 'i' };
@@ -181,6 +189,52 @@ export class ProductService {
     return updated;
   }
 
+  async decreaseStock(
+    productId: string,
+    quantity: number,
+    variantAttributes?: { title: string; option: string }[],
+  ) {
+    const product = await this.productModel.findById(productId).exec();
+
+    if (!product) {
+      throw new NotFoundException(`Product with id ${productId} not found`);
+    }
+
+    // Case 1: Product has variants
+    if (product.variants && product.variants.length > 0) {
+      const variant = product.variants.find((v) =>
+        this.isSameAttributes(variantAttributes || [], v.attributes || []),
+      );
+
+      if (!variant) {
+        throw new BadRequestException('Product variant not found');
+      }
+
+      if (variant.quantity < quantity) {
+        throw new BadRequestException('Not enough stock for this variant');
+      }
+
+      // Decrease variant stock
+      variant.quantity -= quantity;
+
+      // Decrease global product stock as well
+      product.quantity = Math.max(0, product.quantity - quantity);
+    }
+    // Case 2: Product has no variants
+    else {
+      if (product.quantity < quantity) {
+        throw new BadRequestException('Not enough stock for this product');
+      }
+      product.quantity -= quantity;
+    }
+
+    product.sold += quantity;
+    product.markModified('variants');
+
+    await product.save();
+    return product;
+  }
+
   remove(id: number) {
     return `This action removes a #${id} product`;
   }
@@ -215,5 +269,15 @@ export class ProductService {
       ...dto,
       descriptionImages,
     };
+  }
+
+  isSameAttributes(
+    a: { title: string; option: string }[],
+    b: { title: string; option: string }[],
+  ) {
+    if (a.length !== b.length) return false;
+    return a.every((attr) =>
+      b.some((x) => x.title === attr.title && x.option === attr.option),
+    );
   }
 }

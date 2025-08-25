@@ -23,10 +23,7 @@ export const ProductBody = z.object({
     .min(0, "Discount must be at least 0%")
     .max(100, "Discount cannot exceed 100%")
     .optional(),
-  weight: z
-    .number()
-    .min(0, "Weight must be at least 0kg")
-    .optional(),
+  weight: z.number().min(0, "Weight must be at least 0kg").optional(),
   quantity: z
     .number("Quantity must be a number")
     .int("Quantity must be an integer")
@@ -114,7 +111,11 @@ export const Filter = z.object({
 export type FilterType = z.TypeOf<typeof Filter>;
 
 export const FindAllBody = createPaginationBody(
-  z.object({ search: z.string().optional(), filter: Filter.optional() })
+  z.object({
+    search: z.string().optional(),
+    filter: Filter.optional(),
+    active: z.boolean().optional(),
+  })
 );
 export type FindAllBodyType = z.TypeOf<typeof FindAllBody>;
 

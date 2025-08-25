@@ -9,6 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -20,48 +25,78 @@ import {
 import {
   ChevronDown,
   ChevronRight,
+  ChevronUp,
   Download,
+  EllipsisVertical,
   Plus,
   Search,
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faPen } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import ProductDetail from "@/app/admin/product-list/components/product-detail";
-import { ProductWithCategoryType } from "@/schemas/product.schema";
+import { FindAllBody, ProductWithCategoryType } from "@/schemas/product.schema";
 import { handleErrorApi } from "@/lib/error";
 import { productApiRequest } from "@/api-requests/product";
 import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
 import { useSearchParams } from "next/navigation";
-import { buildPaginatedMeta } from "@/utils/pagination";
+import { buildPaginatedMeta, getVisiblePages } from "@/utils/pagination";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
+import { downloadFile } from "@/utils/download-file";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CategoryType } from "@/schemas/category.schema";
+import { categoryApiRequest } from "@/api-requests/category";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ProductListPage() {
   const [products, setProducts] = useState<ProductWithCategoryType[]>([]);
   const [expandedRows, setExpandedRows] = useState(new Set());
   const searchParams = useSearchParams();
+  const [categoryList, setCategoryList] = useState<CategoryType[]>([]);
   const [pageMeta, setPageMeta] = useState<PageMetaType>({
     ...defaultPageMeta,
     pageNumber: Number(searchParams.get("page") || "1"),
   });
-  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [visiblePages, setVisiblePages] = useState<(string | number)[]>([]);
+  // const visiblePages = getVisiblePages(pageMeta);
+  const findAllForm = useForm({
+    resolver: zodResolver(FindAllBody),
+    defaultValues: {
+      filter: { categoryIds: [] },
+    },
+  });
 
-  const loadProducts = async () => {
+  const fetchCategory = async () => {
+    try {
+      const categoryList = (await categoryApiRequest.findAll()).payload;
+      setCategoryList(categoryList);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      handleErrorApi({ error });
+    }
+  };
+
+  const fetchProducts = async () => {
     showLoading();
     try {
-      const findAllRsp = await productApiRequest.findAll({
-        pageNumber: pageMeta.pageNumber,
-        pageSize: pageMeta.pageSize,
-        search: search,
-      });
+      const findAllRsp = await productApiRequest.findAll(
+        findAllForm.getValues()
+      );
 
       const { data, total } = findAllRsp.payload;
       setProducts(data);
       const newPageMeta = buildPaginatedMeta(
         total,
-        pageMeta.pageNumber,
+        findAllForm.getValues("pageNumber") || 1,
         pageMeta.pageSize
       );
       setPageMeta(newPageMeta);
@@ -72,24 +107,48 @@ export default function ProductListPage() {
       closeLoading();
     }
   };
+
   useEffect(() => {
-    loadProducts();
-  }, [search]);
+    findAllForm.setValue("search", searchParams.get("search") || "");
+    const pageNumber = Number(searchParams.get("page") || "1");
+    const filterCategoryId = searchParams.get("categoryId");
+    if (filterCategoryId)
+      findAllForm.setValue("filter.categoryIds", [filterCategoryId]);
+    const search = searchParams.get("search") || "";
+    findAllForm.setValue("search", search);
+
+    setPageMeta((prev) => ({ ...prev, pageNumber: pageNumber }));
+    findAllForm.setValue("pageNumber", pageNumber);
+    fetchProducts();
+    fetchCategory();
+  }, [searchParams]);
+
+  useEffect(() => {
+    const pageNumber = findAllForm.watch("pageNumber") || 1;
+    setPageMeta((prev) => ({ ...prev, pageNumber: pageNumber }));
+  }, [findAllForm.watch("pageNumber")]);
+
+  useEffect(() => {
+    console.log(pageMeta);
+    const visiblePages = getVisiblePages(
+      pageMeta.totalPages,
+      pageMeta.pageNumber,
+      5
+    );
+    console.log("visiblePages", visiblePages);
+    setVisiblePages(visiblePages);
+  }, [pageMeta]);
 
   const exportData = async () => {
     try {
-      const res = await productApiRequest.export({
-        pageNumber: pageMeta.pageNumber,
-        pageSize: pageMeta.pageSize,
-        search: search,
-      });
-      const blob = res.payload; // Blob file Excel
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `product_${Date.now()}.xlsx`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+      // const res = await productApiRequest.export({
+      //   pageNumber: pageMeta.pageNumber,
+      //   pageSize: pageMeta.pageSize,
+      //   search,
+      // });
+      const res = await productApiRequest.export(findAllForm.getValues());
+
+      downloadFile(res.payload, `product_${Date.now()}.xlsx`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({ error });
@@ -120,46 +179,14 @@ export default function ProductListPage() {
     setExpandedRows(newExpandedRows);
   };
 
-  const getVisiblePages = () => {
-    const maxVisible = 5; // Maximum number of page buttons to show
-    const pages: (number | string)[] = [];
-    const { totalPages, pageNumber: currentPage } = pageMeta;
-
-    if (totalPages <= maxVisible + 2) {
-      // If total pages is small, show all pages
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    // Always show first page
-    pages.push(1);
-
-    if (currentPage <= 3) {
-      // Near the beginning
-      pages.push(2, 3, 4, "...", totalPages);
-    } else if (currentPage >= totalPages - 2) {
-      // Near the end
-      pages.push(
-        "...",
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages
-      );
-    } else {
-      // In the middle
-      pages.push(
-        "...",
-        currentPage - 1,
-        currentPage,
-        currentPage + 1,
-        "...",
-        totalPages
-      );
-    }
-
-    return pages;
+  const getBaseParams = () => {
+    const params = new URLSearchParams();
+    const { search, filter } = findAllForm.getValues();
+    if (search) params.set("search", search);
+    if (filter?.categoryIds.length !== 0)
+      params.set("categoryId", filter?.categoryIds[0] || "");
+    return params.toString() ? `${params.toString()}` : "";
   };
-  const visiblePages = getVisiblePages();
 
   return (
     <div className="px-8 py-8 flex flex-col items-center">
@@ -171,22 +198,65 @@ export default function ProductListPage() {
             <div className="w-full md:w-auto flex items-center gap-2 border-2 border-gray-300 rounded-md p-2 px-4">
               <Search className="w-5 h-5 stroke-2 text-black" />
               <input
-                value={search}
+                value={findAllForm.watch("search")}
                 onChange={(e) => {
-                  setPageMeta((prev) => ({ ...prev, pageNumber: 1 }));
-                  setSearch(e.target.value);
+                  findAllForm.setValue("search", e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    findAllForm.setValue("pageNumber", 1);
+                    fetchProducts();
+                  }
                 }}
                 placeholder="Search"
                 className="flex-1 border-none bg-transparent focus:outline-none w-full"
               />
             </div>
-            <p>
+            <p className="hidden sm:block">
               <span>{pageMeta.total}</span>{" "}
               <span className="text-gray-400">items</span>
             </p>
+            <Link
+              href="/admin/save-product"
+              className="sm:hidden p-3 rounded-md flex items-center gap-2 text-white bg-blue-600 cursor-pointer"
+            >
+              <Plus className="w-5 h-5 " />
+              <p className="whitespace-nowrap leading-0">
+                New <span className="hidden sm:block">Product</span>
+              </p>
+            </Link>
           </div>
           {/* Right */}
           <div className="flex gap-2 items-stretch">
+            <Select
+              value={
+                findAllForm.watch("filter.categoryIds").length !== 0
+                  ? findAllForm.watch("filter.categoryIds")[0]
+                  : undefined
+              }
+              onValueChange={(value) => {
+                if (value === "All") {
+                  findAllForm.setValue("filter.categoryIds", []);
+                } else {
+                  findAllForm.setValue("filter.categoryIds", [value]);
+                }
+                findAllForm.setValue("pageNumber", 1);
+                fetchProducts();
+              }}
+            >
+              <SelectTrigger className="w-[150px] border-gray-300 border-2 text-base py-6">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                {categoryList.map((category) => (
+                  <SelectItem key={category._id} value={category._id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <button
               onClick={exportData}
               className="p-3 rounded-md border-2 border-gray-300 cursor-pointer flex items-center gap-2"
@@ -196,7 +266,7 @@ export default function ProductListPage() {
             </button>
             <Link
               href="/admin/save-product"
-              className="p-3 rounded-md flex items-center gap-2 text-white bg-blue-600 cursor-pointer"
+              className="hidden sm:flex p-3 rounded-md items-center gap-2 text-white bg-blue-600 cursor-pointer"
             >
               <Plus className="w-5 h-5 " />
               <p className="whitespace-nowrap leading-0">New Product</p>
@@ -210,8 +280,10 @@ export default function ProductListPage() {
               <TableRow className="bg-gray-200 border-none">
                 <TableHead
                   className="font-normal text-gray-600 tracking-wider uppercase pl-4 rounded-tl-md rounded-bl-md sm:w-auto
-                  w-[74%]   /* mặc định điện thoại */
-                  md:w-[40%] md:min-w-[300px] /* màn hình >= 768px */"
+                  w-[100%] rounded-tr-md rounded-br-md
+                  sm:rounded-tr-none sm:rounded-br-none
+                  md:w-[40%] md:min-w-[300px]
+                  "
                 >
                   Item name
                 </TableHead>
@@ -226,7 +298,7 @@ export default function ProductListPage() {
                 </TableHead>
                 <TableHead
                   className="font-normal text-gray-600 tracking-wider uppercase rounded-tr-md rounded-br-md
-                  sm:w-auto w-[26%]
+                  sm:w-auto w-[26%] hidden sm:table-cell
                   "
                   // style={{ width: "20px" }}
                 ></TableHead>
@@ -282,6 +354,75 @@ export default function ProductListPage() {
                             </div>
                           </div>
                         </div>
+                        {/* <DropdownMenu>
+                          <DropdownMenuTrigger className="sm:hidden">
+                            <EllipsisVertical className="w-5 h-5 cursor-pointer" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                              <Switch
+                                title="Active"
+                                checked={product.active}
+                                onCheckedChange={(checked) =>
+                                  handleActiveChange(product._id, checked)
+                                }
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Link href={`/admin/save-product/${product._id}`}>
+                                <FontAwesomeIcon
+                                  icon={faPen}
+                                  className="text-black w-5 h-5"
+                                />
+                              </Link>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem>Team</DropdownMenuItem>
+                            <DropdownMenuItem>Subscription</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu> */}
+                        <Popover>
+                          <PopoverTrigger className="sm:hidden">
+                            <EllipsisVertical className="w-5 h-5 cursor-pointer" />
+                          </PopoverTrigger>
+                          <PopoverContent className="w-36">
+                            <div className="flex flex-col gap-2">
+                              <Link
+                                className="flex"
+                                href={`/admin/save-product/${product._id}`}
+                              >
+                                <p className="w-20 text-left">Edit</p>
+                                <FontAwesomeIcon
+                                  icon={faPen}
+                                  className="text-black w-5 h-5"
+                                />{" "}
+                              </Link>
+                              <div className="flex items-center">
+                                <p className="w-20 text-left">Active</p>
+                                <Switch
+                                  title="Active"
+                                  checked={product.active}
+                                  onCheckedChange={(checked) =>
+                                    handleActiveChange(product._id, checked)
+                                  }
+                                />
+                              </div>
+                              <button
+                                onClick={() => toggleRow(product._id)}
+                                className="flex cursor-pointer pr-2 text-gray-600"
+                              >
+                                <p className="w-20 text-left">Expand</p>
+                                {expandedRows.has(product._id) ? (
+                                  <ChevronDown className="w-5 h-5" />
+                                ) : (
+                                  <ChevronUp className="w-5 h-5" />
+                                )}
+                              </button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </TableCell>
                     {/* Desktop columns */}
@@ -316,7 +457,7 @@ export default function ProductListPage() {
                         <p className="text-gray-400 ml-2">41 reviews</p>
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 w-20">
+                    <TableCell className="py-4 w-20 hidden sm:table-cell">
                       <div className="flex items-center gap-4">
                         <Link href={`/admin/save-product/${product._id}`}>
                           <FontAwesomeIcon
@@ -333,12 +474,12 @@ export default function ProductListPage() {
                         />
                         <button
                           onClick={() => toggleRow(product._id)}
-                          className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-300 rounded-md transition-colors"
+                          className="cursor-pointer pr-2 text-gray-600"
                         >
                           {expandedRows.has(product._id) ? (
                             <ChevronDown className="w-5 h-5" />
                           ) : (
-                            <ChevronRight className="w-5 h-5" />
+                            <ChevronUp className="w-5 h-5" />
                           )}
                         </button>
                       </div>
@@ -349,7 +490,7 @@ export default function ProductListPage() {
                       <TableCell colSpan={5} className="bg-white rounded-md">
                         <ProductDetail
                           product={product}
-                          loadProducts={loadProducts}
+                          loadProducts={fetchProducts}
                         />
                       </TableCell>
                     </TableRow>
@@ -363,9 +504,8 @@ export default function ProductListPage() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  {/* <PaginationPrevious href="#" /> */}
                   <PaginationPrevious
-                    href={`?page=${pageMeta.pageNumber - 1}&search=${search}`}
+                    href={`?${getBaseParams()}&page=${pageMeta.pageNumber - 1}`}
                     aria-disabled={!pageMeta.hasPrevPage}
                     className={
                       !pageMeta.hasPrevPage
@@ -375,14 +515,13 @@ export default function ProductListPage() {
                   />
                 </PaginationItem>
                 {/* Page numbers */}
-                {/* Page numbers */}
                 {visiblePages.map((page, index) => (
                   <PaginationItem key={`${page}-${index}`}>
                     {page === "..." ? (
                       <PaginationEllipsis />
                     ) : (
                       <PaginationLink
-                        href={`?page=${page}&search=${search}`}
+                        href={`?${getBaseParams()}&page=${page}`}
                         isActive={page === pageMeta.pageNumber}
                       >
                         {page}
@@ -392,7 +531,7 @@ export default function ProductListPage() {
                 ))}
                 <PaginationItem>
                   <PaginationNext
-                    href={`?page=${pageMeta.pageNumber + 1}&search=${search}`}
+                    href={`?${getBaseParams()}&page=${pageMeta.pageNumber + 1}`}
                     aria-disabled={!pageMeta.hasNextPage}
                     className={
                       !pageMeta.hasNextPage

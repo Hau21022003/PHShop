@@ -30,7 +30,7 @@ const SidebarItem = ({
   return (
     <Link
       href={url}
-      className={`flex items-center justify-between py-2 px-3 rounded-lg transition cursor-pointer
+      className={`flex items-center outline-none justify-between py-2 px-3 rounded-lg transition cursor-pointer
         ${active ? "bg-white text-black" : "cursor-pointer text-gray-500"}`}
     >
       <div className="flex items-center gap-3">
@@ -70,9 +70,9 @@ const AdminSidebar = () => {
     },
     {
       icon: <ShoppingBag className="w-6 h-6" />,
-      label: "Order",
-      url: "/admin/order",
-      active: pathname == "/admin/order",
+      label: "Orders",
+      url: "/admin/orders",
+      active: pathname == "/admin/orders",
     },
   ];
 
