@@ -150,7 +150,11 @@ export default function StatusTabs({
                   <Link
                     className="w-full"
                     key={i}
-                    href={`/admin/orders?status=${optional.value}`}
+                    href={
+                      optional.value !== ""
+                        ? `/admin/orders?status=${optional.value}`
+                        : `/admin/orders`
+                    }
                   >
                     {optional.label}{" "}
                     {optional.count ? `(${optional.count})` : ""}

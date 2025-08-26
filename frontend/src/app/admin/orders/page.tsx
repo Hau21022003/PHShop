@@ -18,7 +18,7 @@ import OrdersTable from "@/app/admin/orders/components/orders-table";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
 import { useSearchParams } from "next/navigation";
 import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
-import { buildPaginatedMeta, getVisiblePages } from "@/utils/pagination";
+import { buildPaginatedMeta } from "@/utils/pagination";
 
 export default function OrdersPage() {
   const [orderSummary, setOrderSummary] = useState<SummaryResType>();

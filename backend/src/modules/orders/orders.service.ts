@@ -11,7 +11,7 @@ import { SettingKey } from 'src/modules/settings/enum/setting-key.enum';
 import { ProductService } from 'src/modules/product/product.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from 'src/modules/orders/schema/order.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { ProductSnapshot } from 'src/modules/cart/schema/cart.schema';
 import { DateFilter, FindAllDto } from 'src/modules/orders/dto/find-all.dto';
 import { Role } from 'src/modules/users/enums/role.enum';
@@ -214,7 +214,12 @@ export class OrdersService {
 
   private async buildSummary(userId: string, role: Role) {
     const summaryAgg = await this.orderModel.aggregate([
-      { $match: role === Role.USER ? { user: userId } : {} },
+      {
+        $match:
+          role === Role.USER
+            ? { user: new mongoose.Types.ObjectId(userId) }
+            : {},
+      },
       { $group: { _id: '$status', total: { $sum: 1 } } },
     ]);
 

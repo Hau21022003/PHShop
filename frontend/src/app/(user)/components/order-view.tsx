@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { OrderResType, StatusOrders } from "@/schemas/order.schema";
 import { extractTime, formatDateShort } from "@/utils/time";
-import Image from "next/image";
 import React, { Fragment } from "react";
 
 export default function OrderView({ order }: { order: OrderResType }) {
@@ -47,7 +46,7 @@ export default function OrderView({ order }: { order: OrderResType }) {
               order.status === StatusOrders.PROCESSING ? "text-blue-500" : "",
               order.status === StatusOrders.SHIPPED ? "text-indigo-500" : "",
               order.status === StatusOrders.DELIVERED ? "text-green-500" : "",
-              order.status === StatusOrders.DELIVERED ? "text-red-500" : ""
+              order.status === StatusOrders.CANCEL ? "text-red-500" : ""
             )}
           >
             {statusOrderLabel[order.status]}

@@ -55,13 +55,6 @@ export default function UserHeader() {
         </nav>
 
         <nav className="flex items-center gap-6">
-          <Link
-            href="/search-order"
-            className="flex flex-col items-center cursor-pointer"
-            title="Search Order"
-          >
-            <Package className="w-6 h-6" />
-          </Link>
           {/* Cart */}
           <HoverCard>
             <HoverCardTrigger>
@@ -126,6 +119,13 @@ export default function UserHeader() {
               </div>
             </HoverCardContent>
           </HoverCard>
+          <Link
+            href="/search-order"
+            className="flex flex-col items-center cursor-pointer"
+            title="Search Order"
+          >
+            <Package className="w-6 h-6" />
+          </Link>
 
           {/* Profile icon */}
           {!isAuthenticated && (
