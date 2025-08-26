@@ -7,7 +7,7 @@ import {
   ShippingFeeResType,
   ShippingFeeType,
 } from "@/schemas/order.schema";
-import { CheckStockResType } from "@/types/order.type";
+import { CheckStockResType, SearchOrderBodyType } from "@/types/order.type";
 
 const BASE_URL = "/orders";
 export const orderApiRequest = {
@@ -28,4 +28,6 @@ export const orderApiRequest = {
     http.post<Blob>(`${BASE_URL}/export`, body, { responseType: "blob" }),
   downloadInvoice: (orderId: string) =>
     http.get<Blob>(`${BASE_URL}/${orderId}/pdf`, { responseType: "blob" }),
+  searchOrder: (body: SearchOrderBodyType) =>
+    http.post<OrderResType>(`${BASE_URL}/search-order`, body),
 };

@@ -1,7 +1,7 @@
 "use client";
 import { orderApiRequest } from "@/api-requests/order";
 import StatusTabs from "@/app/admin/orders/components/status-tabs";
-import { EntityError, handleErrorApi } from "@/lib/error";
+import { handleErrorApi } from "@/lib/error";
 import { cn } from "@/lib/utils";
 import {
   DateFilter,

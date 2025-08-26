@@ -7,7 +7,6 @@ import { OrderResType, StatusOrders } from "@/schemas/order.schema";
 import { ProductResType } from "@/schemas/product.schema";
 import { downloadFile } from "@/utils/download-file";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 import React, { JSX, useEffect, useState } from "react";
 
 interface OrderDetailsProps {
@@ -102,13 +101,13 @@ export default function OrderDetails({
         <button
           onClick={() => updateOrderStatus(StatusOrders.PROCESSING)}
           disabled={!checkStock}
-          className="disabled:cursor-not-allowed w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
+          className="bg-blue-100 disabled:cursor-not-allowed w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
         >
           Confirm Order
         </button>
         <button
           onClick={() => updateOrderStatus(StatusOrders.CANCEL)}
-          className="w-full p-2 border-2 text-red-500 border-black text-center cursor-pointer font-medium"
+          className="w-full p-2 border-2 bg-red-100 border-black text-center cursor-pointer font-medium"
         >
           Cancel Order
         </button>
@@ -118,13 +117,13 @@ export default function OrderDetails({
       <React.Fragment>
         <button
           onClick={() => updateOrderStatus(StatusOrders.SHIPPED)}
-          className="w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
+          className="bg-indigo-200 w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
         >
           Ship Order
         </button>
         <button
           onClick={() => updateOrderStatus(StatusOrders.CANCEL)}
-          className="w-full p-2 border-2 text-red-500 border-black text-center cursor-pointer font-medium"
+          className="w-full p-2 border-2 bg-red-100 border-black text-center cursor-pointer font-medium"
         >
           Cancel Order
         </button>
@@ -134,13 +133,13 @@ export default function OrderDetails({
       <React.Fragment>
         <button
           onClick={() => updateOrderStatus(StatusOrders.DELIVERED)}
-          className="w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
+          className="bg-green-100 w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
         >
           Mark as Delivered
         </button>
         <button
           onClick={() => updateOrderStatus(StatusOrders.CANCEL)}
-          className="w-full p-2 border-2 text-red-500 border-black text-center cursor-pointer font-medium"
+          className="bg-red-100 w-full p-2 border-2 border-black text-center cursor-pointer font-medium"
         >
           Cancel Order
         </button>

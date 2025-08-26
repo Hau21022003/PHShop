@@ -99,6 +99,9 @@ export const OrderRes = z.object({
   user: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  statusHistory: z
+    .array(z.object({ status: StatusOrders, changedAt: z.string() }))
+    .optional(),
 });
 export type OrderResType = z.TypeOf<typeof OrderRes>;
 
@@ -111,3 +114,12 @@ export const FindAllRes = z.object({
   summary: SummaryRes,
 });
 export type FindAllResType = z.TypeOf<typeof FindAllRes>;
+
+export const searchOrderBody = z.object({
+  code: z.string().min(1, {
+    message: "Code cannot be empty",
+  }),
+  phoneNumber: z.string().min(1, {
+    message: "Phone number cannot be empty",
+  }),
+});

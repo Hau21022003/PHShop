@@ -21,6 +21,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
 import * as puppeteer from 'puppeteer';
+import { SearchOrderDto } from 'src/modules/orders/dto/search-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -94,11 +95,17 @@ export class OrdersService {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const prefix = 'ORD-' + today;
 
+    const startOfDay = new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
     const lastOrder = await this.orderModel
       .findOne({
         createdAt: {
-          $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          $lt: new Date(new Date().setHours(23, 59, 59, 999)),
+          $gte: startOfDay,
+          $lt: endOfDay,
         },
       })
       .sort({ createdAt: -1 })
@@ -328,10 +335,12 @@ export class OrdersService {
   }
 
   async updateStatus(id: string, status: OrderStatus) {
-    const updateData = { status };
     const updated = await this.orderModel.findByIdAndUpdate(
       id,
-      { $set: updateData },
+      {
+        $set: { status },
+        $push: { statusHistory: { status, changedAt: new Date() } },
+      },
       { new: true },
     );
 
@@ -386,7 +395,23 @@ export class OrdersService {
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
     await browser.close();
 
-
     return pdfBuffer;
+  }
+
+  async searchOrder(dto: SearchOrderDto) {
+    const order = await this.orderModel
+      .findOne({
+        code: dto.code,
+        'contactDetails.phoneNumber': dto.phoneNumber,
+      })
+      .lean()
+      .exec();
+
+    if (!order) {
+      throw new NotFoundException(
+        `Order with code ${dto.code} and contact phone ${dto.phoneNumber} not found`,
+      );
+    }
+    return this.mapContactDetails(order);
   }
 }

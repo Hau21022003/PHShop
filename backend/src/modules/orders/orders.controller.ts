@@ -19,6 +19,7 @@ import { OrderStatus } from 'src/modules/orders/enum/status.enum';
 import { AdminGuard } from 'src/common/guards/admin.guard';
 import { Response } from 'express';
 import { ExcelHelper } from 'src/common/helper/excel.helper';
+import { SearchOrderDto } from 'src/modules/orders/dto/search-order.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -157,5 +158,11 @@ export class OrdersController {
     });
 
     res.end(pdfBuffer);
+  }
+
+  @Public()
+  @Post('search-order')
+  searchOrder(@Body() dto: SearchOrderDto) {
+    return this.ordersService.searchOrder(dto);
   }
 }

@@ -2,7 +2,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, ShoppingBag, User } from "lucide-react";
+import { Menu, Package, ShoppingBag, User } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -15,6 +15,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/app/app-provider";
 import { Gender } from "@/schemas/product.schema";
 import { useUserContext } from "@/app/(user)/user-provider";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function UserHeader() {
   const [open, setOpen] = useState(false);
@@ -50,6 +55,13 @@ export default function UserHeader() {
         </nav>
 
         <nav className="flex items-center gap-6">
+          <Link
+            href="/search-order"
+            className="flex flex-col items-center cursor-pointer"
+            title="Search Order"
+          >
+            <Package className="w-6 h-6" />
+          </Link>
           {/* Cart */}
           <HoverCard>
             <HoverCardTrigger>
@@ -114,10 +126,6 @@ export default function UserHeader() {
               </div>
             </HoverCardContent>
           </HoverCard>
-          {/* Favourite */}
-          {/* <Link href={"favorite"} className="flex flex-col items-center cursor-pointer">
-            <Heart className="w-6 h-6" />
-          </Link> */}
 
           {/* Profile icon */}
           {!isAuthenticated && (
@@ -130,38 +138,29 @@ export default function UserHeader() {
           )}
 
           {isAuthenticated && (
-            <HoverCard>
-              <HoverCardTrigger>
-                <Link
-                  href="/profile"
-                  className="flex flex-col items-center cursor-pointer"
-                >
+            <Popover>
+              <PopoverTrigger>
+                <div className="flex flex-col items-center cursor-pointer">
                   <User className="w-6 h-6" />
-                </Link>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-44 p-0 overflow-hidden">
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-44 px-0 py-0">
                 <div className="flex flex-col">
                   <Link
-                    className="w-full p-3 py-2 hover:bg-gray-100"
-                    href={`/profile`}
+                    className="w-full p-3 py-3 hover:bg-gray-100"
+                    href={`/orders`}
                   >
-                    My Profile
+                    My Orders
                   </Link>
                   <Link
-                    className="w-full p-3 py-2 hover:bg-gray-100"
-                    href={`/order`}
-                  >
-                    Order
-                  </Link>
-                  <Link
-                    className="w-full p-3 py-2 hover:bg-gray-100"
+                    className="w-full p-3 py-3 hover:bg-gray-100"
                     href={`/logout`}
                   >
                     Logout
                   </Link>
                 </div>
-              </HoverCardContent>
-            </HoverCard>
+              </PopoverContent>
+            </Popover>
           )}
           <div className="md:hidden">
             <Sheet open={open} onOpenChange={setOpen}>

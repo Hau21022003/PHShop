@@ -245,7 +245,7 @@ export default function ProductListPage() {
                 fetchProducts();
               }}
             >
-              <SelectTrigger className="w-[150px] border-gray-300 border-2 text-base py-6">
+              <SelectTrigger className="w-[150px] border-gray-300 border-2 text-base py-5">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -259,14 +259,14 @@ export default function ProductListPage() {
             </Select>
             <button
               onClick={exportData}
-              className="p-3 rounded-md border-2 border-gray-300 cursor-pointer flex items-center gap-2"
+              className="p-2 rounded-md border-2 border-gray-300 cursor-pointer flex items-center gap-2"
             >
               <Download className="w-5 h-5" />
               <p className="whitespace-nowrap leading-0">Export</p>
             </button>
             <Link
               href="/admin/save-product"
-              className="hidden sm:flex p-3 rounded-md items-center gap-2 text-white bg-blue-600 cursor-pointer"
+              className="hidden sm:flex p-2 rounded-md items-center gap-2 text-white bg-blue-600 cursor-pointer"
             >
               <Plus className="w-5 h-5 " />
               <p className="whitespace-nowrap leading-0">New Product</p>

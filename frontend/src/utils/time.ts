@@ -43,7 +43,7 @@ export const formatDateShort = (inputDate: Date | string | number) => {
   const day = String(date.getDate()).padStart(2, "0");
   const year = date.getFullYear();
 
-  return `${monthAbbr}, ${day}, ${year}`;
+  return `${monthAbbr} ${day}, ${year}`;
 };
 
 export const formatDateWithRelative = (inputDate: Date | string | number) => {
@@ -93,4 +93,16 @@ export function timeAgo(inputDate: Date | string | number): string {
 
   const years = Math.floor(seconds / 31536000);
   return `${years} year${years > 1 ? "s" : ""} ago`;
+}
+
+export function extractTime(inputDate: Date | string | number): string {
+  if (!inputDate) return "";
+
+  const date = new Date(inputDate);
+  if (isNaN(date.getTime())) return "";
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${hours}:${minutes}`;
 }

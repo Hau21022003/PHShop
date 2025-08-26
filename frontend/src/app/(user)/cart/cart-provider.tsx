@@ -52,7 +52,7 @@ export default function CartProvider({
   }, [selectedCartIds]);
 
   useEffect(() => {
-    const cartItemIds = cartItems.map((item) => item._id);
+    const cartItemIds = cartItems?.map((item) => item._id) || [];
     setSelectedCartIds((prev) => prev.filter((id) => cartItemIds.includes(id)));
     updateCheckoutTotal();
   }, [cartItems]);

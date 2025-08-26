@@ -1,6 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import { SignUpForm } from "@/app/(auth)/signup/components/signup-form";
-import Image from "next/image";
+import { Raleway } from "next/font/google";
+const raleway = Raleway({
+  subsets: ["latin"],
+  weight: ["400"],
+});
 
 export default function SignUpPage() {
   return (
@@ -10,7 +14,7 @@ export default function SignUpPage() {
           {/* Left: Login Form */}
           <div className="w-full md:w-1/2 px-6 md:px-12 py-8 space-y-2">
             {/* <img src="/logo.svg" alt="Logo" className="w-10 h-10" /> */}
-            <Image src="/logo.svg" alt="Logo" width={40} height={40} />
+            <p className={`${raleway.className} text-2xl`}>Anna Shop</p>
             <h3 className="text-2xl font-bold">Create an account</h3>
             <p className="text-gray-600 mb-8">
               Discover the tools that turn your designs into fully functional

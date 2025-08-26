@@ -66,18 +66,18 @@ export const handleErrorApi = <T extends FieldValues>({
       })
     })
   } else if (error instanceof HttpError) {
-    toast.error('Lỗi', {
+    toast.error('Error', {
       description: error.payload.message,
       duration: duration ?? 5000
     })
   } else if (error && 'message' in error) {
-    toast.error('Lỗi', {
+    toast.error('Error', {
       description: error.message,
       duration: duration ?? 5000
     })
   } else {
-    toast.error('Lỗi', {
-      description: 'Lỗi không xác định',
+    toast.error('Error', {
+      description: 'Unknown error',
       duration: duration ?? 5000
     })
   }

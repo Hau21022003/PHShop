@@ -66,5 +66,5 @@ export default function GoogleSuccessPage() {
     load();
   }, [router]);
 
-  return <p>Đang đăng nhập...</p>;
+  return <p>Log in...</p>;
 }

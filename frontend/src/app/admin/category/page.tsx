@@ -81,17 +81,24 @@ export default function CategoryPage() {
                 className="flex-1 border-none bg-transparent focus:outline-none w-full"
               />
             </div>
-            <p>
+            <p className="hidden sm:block">
               <span>{categoryList.length}</span>{" "}
               <span className="text-gray-400">items</span>
             </p>
+            <button
+              onClick={() => handleOpenDialog("add")}
+              className="sm:hidden p-2 px-3 cursor-pointer flex items-center justify-center gap-2 text-white bg-blue-600 rounded-md"
+            >
+              <Plus className="w-5 h-5" />
+              <p className="whitespace-nowrap leading-0">Add</p>
+            </button>
           </div>
           {/* Right */}
           <div className="flex gap-2 items-stretch">
             <div className="w-auto flex border border-gray-300 rounded-xl overflow-hidden">
               <button
                 onClick={() => setActiveFilter("all")}
-                className={`cursor-pointer py-2 px-3 leading-none whitespace-nowrap ${
+                className={`cursor-pointer py-3 px-3 leading-none whitespace-nowrap ${
                   activeFilter === "all" ? "bg-gray-200" : ""
                 }`}
               >
@@ -100,7 +107,7 @@ export default function CategoryPage() {
               <div className="border-l border-gray-300"></div>
               <button
                 onClick={() => setActiveFilter("active")}
-                className={`cursor-pointer py-2 px-3 leading-none whitespace-nowrap ${
+                className={`cursor-pointer py-3 px-3 leading-none whitespace-nowrap ${
                   activeFilter === "active" ? "bg-gray-200" : ""
                 }`}
               >
@@ -109,7 +116,7 @@ export default function CategoryPage() {
               <div className="border-l border-gray-300"></div>
               <button
                 onClick={() => setActiveFilter("deactive")}
-                className={`cursor-pointer py-2 px-3 leading-none whitespace-nowrap ${
+                className={`cursor-pointer py-3 px-3 leading-none whitespace-nowrap ${
                   activeFilter === "deactive" ? "bg-gray-200" : ""
                 }`}
               >
@@ -118,7 +125,7 @@ export default function CategoryPage() {
             </div>
             <button
               onClick={() => handleOpenDialog("add")}
-              className="p-2 px-3 cursor-pointer flex items-center justify-center gap-2 text-white bg-blue-600 rounded-md"
+              className="hidden sm:flex p-2 px-3 cursor-pointer items-center justify-center gap-2 text-white bg-blue-600 rounded-md"
             >
               <Plus className="w-5 h-5" />
               <p className="whitespace-nowrap leading-0">Add Category</p>

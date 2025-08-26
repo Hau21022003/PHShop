@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const privatePaths = ["/chat"];
+const privatePaths = ["/orders"];
 const adminPaths = ["/admin"];
 const authPaths = ["/login", "/signup"];
 

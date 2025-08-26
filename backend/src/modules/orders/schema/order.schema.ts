@@ -55,6 +55,14 @@ export class OrderItem {
   productSnapshot: ProductSnapshot;
 }
 
+export class StatusHistory {
+  @Prop({ type: String, enum: OrderStatus, required: true })
+  status: OrderStatus;
+
+  @Prop({ required: true })
+  changedAt: Date;
+}
+
 @Schema({ timestamps: true })
 export class Order {
   @Prop({ unique: true })
@@ -78,6 +86,9 @@ export class Order {
     default: OrderStatus.PENDING,
   })
   status: OrderStatus;
+
+  @Prop({ type: [StatusHistory], default: [] })
+  statusHistory: StatusHistory[];
 
   @Prop()
   note: string;
