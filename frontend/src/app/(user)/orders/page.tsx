@@ -3,6 +3,7 @@ import { orderApiRequest } from "@/api-requests/order";
 import OrderView from "@/app/(user)/components/order-view";
 import StatusTabs from "@/app/(user)/orders/components/status-tabs";
 import { useUserContext } from "@/app/(user)/user-provider";
+import { useAppContext } from "@/app/app-provider";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
 import { handleErrorApi } from "@/lib/error";
 import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
@@ -28,6 +29,7 @@ export default function OrdersPage() {
   const [orderSummary, setOrderSummary] = useState<SummaryResType>();
   const searchParams = useSearchParams();
   const { scrollRef } = useUserContext();
+  const { user } = useAppContext();
   const findAllForm = useForm({
     resolver: zodResolver(FindAllBody),
     defaultValues: {},
@@ -51,7 +53,6 @@ export default function OrdersPage() {
       );
 
       pageMeta.current = newPageMeta;
-      // setOrders(orders || []);
       if (findAllForm.getValues("pageNumber") === 1) setOrders(orders);
       else setOrders((prev) => [...prev, ...orders]);
 
@@ -126,9 +127,14 @@ export default function OrdersPage() {
       {total !== 0 && <StatusTabs total={total} orderSummary={orderSummary} />}
       {total !== 0 && (
         <Fragment>
-          <div className="mt-4 space-y-6">
+          <div className="mt-4 space-y-10">
             {orders.map((order) => (
-              <OrderView key={order._id} order={order} />
+              <OrderView
+                key={order._id}
+                order={order}
+                user={user}
+                fetchOrder={fetchOrders}
+              />
             ))}
           </div>
         </Fragment>

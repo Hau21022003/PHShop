@@ -30,4 +30,6 @@ export const orderApiRequest = {
     http.get<Blob>(`${BASE_URL}/${orderId}/pdf`, { responseType: "blob" }),
   searchOrder: (body: SearchOrderBodyType) =>
     http.post<OrderResType>(`${BASE_URL}/search-order`, body),
+  cancelOrderByUser: (orderId: string) =>
+    http.get(`${BASE_URL}/${orderId}/cancel-by-user`),
 };

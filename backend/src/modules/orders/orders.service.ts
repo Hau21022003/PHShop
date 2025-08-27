@@ -356,6 +356,31 @@ export class OrdersService {
     return updated;
   }
 
+  async cancelOrderByUser(id: string, userId: string) {
+    const updated = await this.orderModel.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(id),
+        status: OrderStatus.PENDING,
+        user: new mongoose.Types.ObjectId(userId),
+      },
+      {
+        $set: { status: OrderStatus.CANCEL },
+        $push: {
+          statusHistory: { status: OrderStatus.CANCEL, changedAt: new Date() },
+        },
+      },
+      { new: true },
+    );
+
+    if (!updated) {
+      throw new NotFoundException(
+        `Order with id ${id} not found or cannot be canceled`,
+      );
+    }
+
+    return updated;
+  }
+
   async remove(id: string) {
     const deleted = await this.orderModel.findByIdAndDelete(id);
 

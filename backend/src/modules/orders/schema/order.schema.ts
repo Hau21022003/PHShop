@@ -95,6 +95,9 @@ export class Order {
 
   @Prop({ type: ContactDetails, required: true })
   contactDetails: ContactDetails;
+
+  @Prop({ default: false })
+  isReviewed: boolean;
 }
 
 export type OrderDocument = Order & Document;

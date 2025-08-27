@@ -102,6 +102,7 @@ export const OrderRes = z.object({
   statusHistory: z
     .array(z.object({ status: StatusOrders, changedAt: z.string() }))
     .optional(),
+  isReviewed: z.boolean().optional(),
 });
 export type OrderResType = z.TypeOf<typeof OrderRes>;
 

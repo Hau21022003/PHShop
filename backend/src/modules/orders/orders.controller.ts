@@ -74,6 +74,11 @@ export class OrdersController {
     return this.ordersService.updateStatus(id, OrderStatus.CANCEL);
   }
 
+  @Get(':id/cancel-by-user')
+  cancelOrderByUser(@Param('id') id: string, @GetUser('sub') userId: string) {
+    return this.ordersService.cancelOrderByUser(id, userId);
+  }
+
   @Delete(':id')
   @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {

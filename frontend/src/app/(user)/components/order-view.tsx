@@ -1,10 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
+import { orderApiRequest } from "@/api-requests/order";
+import { handleErrorApi } from "@/lib/error";
 import { cn } from "@/lib/utils";
+import { AccountType } from "@/schemas/account.schema";
 import { OrderResType, StatusOrders } from "@/schemas/order.schema";
 import { extractTime, formatDateShort } from "@/utils/time";
 import React, { Fragment } from "react";
+import { toast } from "sonner";
 
-export default function OrderView({ order }: { order: OrderResType }) {
+export default function OrderView({
+  order,
+  user,
+  fetchOrder,
+}: {
+  order: OrderResType;
+  user: AccountType | null;
+  fetchOrder: () => void;
+}) {
   const statusOrderLabel: Record<StatusOrders, string> = {
     [StatusOrders.PENDING]: "Pending",
     [StatusOrders.PROCESSING]: "Confirmed",
@@ -12,6 +24,7 @@ export default function OrderView({ order }: { order: OrderResType }) {
     [StatusOrders.CANCEL]: "Cancel",
     [StatusOrders.DELIVERED]: "Delivered",
   };
+
   const getPriceDiscount = (price: number, discount: number) => {
     const rawPriceDiscount =
       price && discount ? price - (price * discount) / 100 : price;
@@ -21,19 +34,50 @@ export default function OrderView({ order }: { order: OrderResType }) {
     return priceDiscount;
   };
 
+  const cancelOrder = async (orderId: string) => {
+    try {
+      await orderApiRequest.cancelOrderByUser(orderId);
+      fetchOrder();
+      toast.success("Success", {
+        duration: 1000,
+        description: "Cancel order success",
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      handleErrorApi({ error });
+    }
+  };
+
   return (
     <div className="border-2 border-black p-4 space-y-4">
-      <div className="space-y-2">
-        <p className="text-lg font-bold uppercase">Order #: {order.code}</p>
-        <div className="flex gap-2 items-center flex-wrap text-gray-500">
-          <p>{order.items.length} Products</p>
-          <div className="h-4 border-l-2 border-gray-400"></div>
-          <p>By {order.contactDetails.fullName}</p>
-          <div className="h-4 border-l-2 border-gray-400"></div>
-          <p>
-            {extractTime(order.createdAt)}, {formatDateShort(order.createdAt)}
-          </p>
+      <div className="flex gap-2 justify-between flex-col sm:flex-row sm:items-start">
+        <div className="space-y-2">
+          <p className="text-lg font-bold uppercase">Order #: {order.code}</p>
+          <div className="flex gap-2 items-center flex-wrap text-gray-500">
+            <p>{order.items.length} Products</p>
+            <div className="h-4 border-l-2 border-gray-400"></div>
+            <p>By {order.contactDetails.fullName}</p>
+            <div className="h-4 border-l-2 border-gray-400"></div>
+            <p>
+              {extractTime(order.createdAt)}, {formatDateShort(order.createdAt)}
+            </p>
+          </div>
         </div>
+        {user?._id === order.user && order.status === StatusOrders.PENDING && (
+          <button
+            onClick={() => cancelOrder(order._id)}
+            className="bg-red-100 text-black font-medium px-4 py-2 cursor-pointer border-2 border-black"
+          >
+            Cancel Order
+          </button>
+        )}
+        {user?._id === order.user &&
+          order.status === StatusOrders.DELIVERED &&
+          !order.isReviewed && (
+            <button className="bg-green-100 text-black font-medium px-4 py-2 cursor-pointer border-2 border-black">
+              Review
+            </button>
+          )}
       </div>
       <div className="border-t-2 border-black"></div>
       <div className="space-y-2">
