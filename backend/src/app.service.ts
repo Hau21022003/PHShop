@@ -7,7 +7,11 @@ import { ProductService } from 'src/modules/product/product.service';
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
-  private readonly uploadDir = path.join(process.cwd(), 'uploads', 'product');
+  private readonly productUploadDir = path.join(
+    process.cwd(),
+    'uploads',
+    'product',
+  );
   constructor(private readonly productService: ProductService) {}
 
   @Cron('0 0 * * *') // Oh
@@ -16,8 +20,8 @@ export class AppService {
     this.logger.log('Bắt đầu dọn dẹp ảnh không sử dụng...');
 
     // 1. Lấy tất cả file trong thư mục uploads/product
-    const allFiles = fs.existsSync(this.uploadDir)
-      ? fs.readdirSync(this.uploadDir)
+    const allFiles = fs.existsSync(this.productUploadDir)
+      ? fs.readdirSync(this.productUploadDir)
       : [];
 
     // 2. Lấy tất cả ảnh đang dùng từ database
@@ -40,7 +44,7 @@ export class AppService {
     const unusedFiles = allFiles.filter((file) => !usedFiles.has(file));
     for (const file of unusedFiles) {
       try {
-        fs.unlinkSync(path.join(this.uploadDir, file));
+        fs.unlinkSync(path.join(this.productUploadDir, file));
         this.logger.log(`Đã xóa ảnh không dùng: ${file}`);
       } catch (error) {
         this.logger.error(`Lỗi khi xóa file ${file}:`, error);

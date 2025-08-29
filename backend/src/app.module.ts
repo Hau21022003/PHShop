@@ -15,6 +15,7 @@ import { DownloadModule } from 'src/modules/download/download.module';
 import { OrdersModule } from 'src/modules/orders/orders.module';
 import { ProductModule } from 'src/modules/product/product.module';
 import { ProvinceModule } from 'src/modules/province/province.module';
+import { ReviewModule } from 'src/modules/review/review.module';
 import { SettingsModule } from 'src/modules/settings/settings.module';
 import { UsersModule } from 'src/modules/users/users.module';
 
@@ -36,6 +37,7 @@ import { UsersModule } from 'src/modules/users/users.module';
     ProvinceModule,
     OrdersModule,
     SettingsModule,
+    ReviewModule,
   ],
   providers: [
     AppService,

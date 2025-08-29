@@ -53,6 +53,9 @@ export class OrderItem {
 
   @Prop({ type: ProductSnapshot, required: true })
   productSnapshot: ProductSnapshot;
+
+  @Prop({ default: false })
+  isReviewed: boolean;
 }
 
 export class StatusHistory {
@@ -95,9 +98,6 @@ export class Order {
 
   @Prop({ type: ContactDetails, required: true })
   contactDetails: ContactDetails;
-
-  @Prop({ default: false })
-  isReviewed: boolean;
 }
 
 export type OrderDocument = Order & Document;

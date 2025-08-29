@@ -12,10 +12,12 @@ export default function OrderView({
   order,
   user,
   fetchOrder,
+  onOpenReview,
 }: {
   order: OrderResType;
   user: AccountType | null;
   fetchOrder: () => void;
+  onOpenReview?: (orderId: string) => void;
 }) {
   const statusOrderLabel: Record<StatusOrders, string> = {
     [StatusOrders.PENDING]: "Pending",
@@ -73,8 +75,12 @@ export default function OrderView({
         )}
         {user?._id === order.user &&
           order.status === StatusOrders.DELIVERED &&
-          !order.isReviewed && (
-            <button className="bg-green-100 text-black font-medium px-4 py-2 cursor-pointer border-2 border-black">
+          !order.items.some((orderItem) => orderItem.isReviewed) &&
+          onOpenReview && (
+            <button
+              onClick={() => onOpenReview(order._id)}
+              className="bg-green-100 text-black font-medium px-4 py-2 cursor-pointer border-2 border-black"
+            >
               Review
             </button>
           )}

@@ -444,4 +444,37 @@ export class OrdersService {
     }
     return this.mapContactDetails(order);
   }
+
+  // async markAsReviewed(orderId: string) {
+  //   const updated = await this.orderModel.findByIdAndUpdate(
+  //     orderId,
+  //     {
+  //       $set: { isReviewed: true },
+  //     },
+  //     { new: true },
+  //   );
+
+  //   if (!updated) {
+  //     throw new NotFoundException(`Order with id ${orderId} not found`);
+  //   }
+
+  //   return updated;
+  // }
+
+  async markItemAsReviewed(orderId: string, productId: string) {
+    const updated = await this.orderModel.findOneAndUpdate(
+      { _id: orderId },
+      { $set: { 'items.$[elem].isReviewed': true } },
+      {
+        new: true,
+        arrayFilters: [{ 'elem.product': productId }],
+      },
+    );
+
+    if (!updated) {
+      throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
+    return updated;
+  }
 }

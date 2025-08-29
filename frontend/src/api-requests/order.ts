@@ -15,6 +15,8 @@ export const orderApiRequest = {
     http.post<ShippingFeeResType>(`${BASE_URL}/shipping-fee`, body),
   createOrder: (body: CreateOrderType) =>
     http.post<OrderResType>(`${BASE_URL}`, body),
+  findOne: (orderId: string) =>
+    http.get<OrderResType>(`${BASE_URL}/${orderId}`),
   findAll: (body: FindAllBodyType) =>
     http.post<FindAllResType>(`${BASE_URL}/find-all`, body),
   checkStock: (orderId: string) =>

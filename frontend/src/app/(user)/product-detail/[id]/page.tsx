@@ -76,8 +76,12 @@ export default function ProductDetailPage() {
 
       {/*  */}
       <div className="mt-8">
-        {isDescriptionOpen && <DescriptionContainer product={product} />}
-        {isReviewsOpen && (
+        {isDescriptionOpen && (
+          <div className="max-w-4xl">
+            <DescriptionContainer product={product} />
+          </div>
+        )}
+        {isReviewsOpen && product && (
           <ReviewsContainer open={isReviewsOpen} product={product} />
         )}
       </div>

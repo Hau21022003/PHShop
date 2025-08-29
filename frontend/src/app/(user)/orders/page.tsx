@@ -1,6 +1,7 @@
 "use client";
 import { orderApiRequest } from "@/api-requests/order";
 import OrderView from "@/app/(user)/components/order-view";
+import CreateReviewDialog from "@/app/(user)/orders/components/create-review-dialog";
 import StatusTabs from "@/app/(user)/orders/components/status-tabs";
 import { useUserContext } from "@/app/(user)/user-provider";
 import { useAppContext } from "@/app/app-provider";
@@ -47,7 +48,7 @@ export default function OrdersPage() {
         pageMeta.current.pageNumber,
         pageMeta.current.pageSize
       );
-      const allCount = Object.entries(StatusOrders).reduce(
+      const allCount = Object.entries(StatusOrders).reduce<number>(
         (sum, [, label]) => (summary[label] ? sum + summary[label] : sum),
         0
       );
@@ -103,6 +104,17 @@ export default function OrdersPage() {
     };
   }, [isLoading]);
 
+  const [openReview, setOpenReview] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState<string | undefined>();
+  const handleOpenReview = (orderId: string) => {
+    setReviewOrderId(orderId);
+    setOpenReview(true);
+  };
+  const handleCloseReview = () => {
+    setReviewOrderId(undefined);
+    setOpenReview(false);
+  };
+
   return (
     <div
       className={`container max-w-[1200px] mx-auto px-6 py-6 ${
@@ -134,10 +146,18 @@ export default function OrdersPage() {
                 order={order}
                 user={user}
                 fetchOrder={fetchOrders}
+                onOpenReview={handleOpenReview}
               />
             ))}
           </div>
         </Fragment>
+      )}
+      {reviewOrderId && (
+        <CreateReviewDialog
+          open={openReview}
+          onClose={handleCloseReview}
+          orderId={reviewOrderId}
+        />
       )}
     </div>
   );

@@ -86,8 +86,8 @@ const AdminSidebar = () => {
     {
       icon: <StarHalf className="w-6 h-6" />,
       label: "Feedback",
-      url: "/admin/feedback",
-      active: pathname == "/admin/feedback",
+      url: "/admin/review",
+      active: pathname == "/admin/review",
     },
   ];
 

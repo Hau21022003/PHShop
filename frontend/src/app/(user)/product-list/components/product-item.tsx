@@ -35,6 +35,14 @@ export default function ProductItem({ product }: ProductItemProps) {
             alt=""
           />
         )}
+        {product.quantity === 0 && (
+          <div
+            className="absolute inset-0 w-full aspect-square bg-black/70 text-white
+            flex items-center justify-center uppercase text-lg font-bold tracking-wider"
+          >
+            Out of stock
+          </div>
+        )}
 
         {/* Nút BUY NOW */}
         <div className="cursor-pointer font-bold whitespace-nowrap text-xl absolute bottom-0 left-1/2 -translate-x-1/2 bg-orange-500 bg-opacity-80 text-white py-2 px-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

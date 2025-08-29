@@ -89,6 +89,7 @@ export const OrderRes = z.object({
         price: z.number(),
         discount: z.number().optional(),
       }),
+      isReviewed: z.boolean().optional(),
     })
   ),
   contactDetails: ContactDetailsSchema,
@@ -102,7 +103,7 @@ export const OrderRes = z.object({
   statusHistory: z
     .array(z.object({ status: StatusOrders, changedAt: z.string() }))
     .optional(),
-  isReviewed: z.boolean().optional(),
+  // isReviewed: z.boolean().optional(),
 });
 export type OrderResType = z.TypeOf<typeof OrderRes>;
 

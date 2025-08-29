@@ -11,13 +11,13 @@ export default function AdminLayout({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="h-full flex flex-col lg:flex-row">
+    <div className="h-full flex flex-col xl:flex-row">
       {/* Sidebar bên trái */}
-      <div className="h-full hidden lg:block">
+      <div className="h-full hidden xl:block">
         <AdminSidebar />
       </div>
 
-      <div className="block lg:hidden p-2 bg-black">
+      <div className="block xl:hidden p-2 bg-black">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <div className="cursor-pointer">
