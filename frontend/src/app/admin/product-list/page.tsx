@@ -141,13 +141,7 @@ export default function ProductListPage() {
 
   const exportData = async () => {
     try {
-      // const res = await productApiRequest.export({
-      //   pageNumber: pageMeta.pageNumber,
-      //   pageSize: pageMeta.pageSize,
-      //   search,
-      // });
       const res = await productApiRequest.export(findAllForm.getValues());
-
       downloadFile(res.payload, `product_${Date.now()}.xlsx`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -354,35 +348,6 @@ export default function ProductListPage() {
                             </div>
                           </div>
                         </div>
-                        {/* <DropdownMenu>
-                          <DropdownMenuTrigger className="sm:hidden">
-                            <EllipsisVertical className="w-5 h-5 cursor-pointer" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                              <Switch
-                                title="Active"
-                                checked={product.active}
-                                onCheckedChange={(checked) =>
-                                  handleActiveChange(product._id, checked)
-                                }
-                              />
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Link href={`/admin/save-product/${product._id}`}>
-                                <FontAwesomeIcon
-                                  icon={faPen}
-                                  className="text-black w-5 h-5"
-                                />
-                              </Link>
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem>Team</DropdownMenuItem>
-                            <DropdownMenuItem>Subscription</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu> */}
                         <Popover>
                           <PopoverTrigger className="sm:hidden">
                             <EllipsisVertical className="w-5 h-5 cursor-pointer" />
@@ -453,8 +418,14 @@ export default function ProductListPage() {
                           icon={faStar}
                           className="text-orange-500 w-5 h-5"
                         />
-                        <p className="text-black font-medium">4.6</p>
-                        <p className="text-gray-400 ml-2">41 reviews</p>
+                        <p className="text-black font-medium">
+                          {product.averageRating || 0}
+                        </p>
+                        <Link href={`/admin/review?search=${product.name}`}>
+                          <p className="text-gray-400 underline underline-offset-2 ml-2">
+                            {product.reviewCount || 0} reviews
+                          </p>
+                        </Link>
                       </div>
                     </TableCell>
                     <TableCell className="py-4 w-20 hidden sm:table-cell">

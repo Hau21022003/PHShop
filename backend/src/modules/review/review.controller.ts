@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -21,6 +22,8 @@ import { getDownloadUrl } from 'src/common/helper/url.helper';
 import { FindByProductDto } from 'src/modules/review/dto/search.dto';
 import { AdminGuard } from 'src/common/guards/admin.guard';
 import { FindAllDto } from 'src/modules/review/dto/find-all.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { ReplyDto } from 'src/modules/review/dto/reply.dto';
 
 @Controller('review')
 export class ReviewController {
@@ -34,9 +37,13 @@ export class ReviewController {
     return this.reviewService.create(createReviewDto, userId);
   }
 
+  @Public()
   @Post('find-by-product')
-  findByProduct(@Body() dto: FindByProductDto) {
-    return this.reviewService.findByProduct(dto);
+  async findByProduct(@Body() dto: FindByProductDto) {
+    const summary = await this.reviewService.buildSummary(dto.productId);
+    const items = await this.reviewService.findByProduct(dto);
+    return { summary, items };
+    // return this.reviewService.findByProduct(dto);
   }
 
   @UseGuards(AdminGuard)
@@ -50,9 +57,11 @@ export class ReviewController {
     return this.reviewService.findOne(+id);
   }
 
+  @Public()
   @Get(':productId/find-summary')
   async findSummaryByProduct(@Param('productId') productId: string) {
-    return this.reviewService.findSummaryByProduct(productId);
+    const summary = await this.reviewService.buildSummary(productId);
+    return { summary };
   }
 
   @Get(':orderId/find-by-order')
@@ -60,9 +69,9 @@ export class ReviewController {
     return this.reviewService.findOneByOrder(orderId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewService.update(+id, updateReviewDto);
+  @Put(':id/reply')
+  reply(@Param('id') id: string, @Body() dto: ReplyDto) {
+    return this.reviewService.reply(id, dto);
   }
 
   @Delete(':id')

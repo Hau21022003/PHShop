@@ -1,6 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from 'src/modules/review/schema/review.schema';
 import mongoose, { Model, Types } from 'mongoose';
@@ -14,11 +17,14 @@ import {
   FindAllDto,
   ReplyStatus,
 } from 'src/modules/review/dto/find-all.dto';
+import { ReplyDto } from 'src/modules/review/dto/reply.dto';
+import { ProductService } from 'src/modules/product/product.service';
 
 @Injectable()
 export class ReviewService {
   constructor(
     private readonly orderService: OrdersService,
+    private readonly productService: ProductService,
     @InjectModel(Review.name) private reviewModel: Model<Review>,
   ) {}
 
@@ -36,11 +42,11 @@ export class ReviewService {
     };
     const created = new this.reviewModel(createData);
     const review = await created.save();
-    await this.markOrderAsReviewedIfCompleted(
+    await this.orderService.markItemAsReviewed(
       createReviewDto.order,
       createReviewDto.product,
     );
-
+    await this.updateProductReviewStats(createReviewDto.product);
     return review;
   }
 
@@ -64,16 +70,33 @@ export class ReviewService {
     }
   }
 
-  private async markOrderAsReviewedIfCompleted(
-    orderId: string,
-    productId: string,
-  ) {
-    return await this.orderService.markItemAsReviewed(orderId, productId);
+  private async updateProductReviewStats(productId: string) {
+    // const reviews = await this.findByProduct({ productId: productId });
+    // const count = reviews.length;
+    // const totalScore = reviews.reduce((acc, review) => acc + review.rating, 0);
+    const stats = await this.reviewModel.aggregate([
+      { $match: { product: new Types.ObjectId(productId) } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          average: { $avg: '$rating' },
+        },
+      },
+    ]);
+    const count = stats[0]?.count || 0;
+    const average = stats[0]?.average || 0;
+    await this.productService.updateReviewStats(productId, average, count);
+
+    // const count = stats[0]?.count || 0;
+    // const average = stats[0]?.average || 0;
+    // const averageScore = count > 0 ? totalScore / count : 0;
+    // await this.productService.updateReviewStats(productId, averageScore, count);
   }
 
   async findAll(query: FindAllDto) {
     const filter = this.buildFilterFindAll(query);
-    const items = await this.reviewModel.aggregate([
+    const result = await this.reviewModel.aggregate([
       {
         $lookup: {
           from: 'products',
@@ -88,11 +111,23 @@ export class ReviewService {
           ...filter,
         },
       },
+      {
+        $facet: {
+          items: [
+            { $sort: { createdAt: -1 } },
+            { $skip: query.offset || 0 },
+            { $limit: query.pageSize || 10 },
+          ],
+          totalCount: [{ $count: 'count' }],
+        },
+      },
     ]);
+    const items = result[0].items;
+    const total = result[0].totalCount[0]?.count || 0;
 
     const replyStatusSummary = await this.buildReplyStatusSummary();
 
-    return { replyStatusSummary, items };
+    return { replyStatusSummary, items, total };
   }
 
   private buildFilterFindAll(query: FindAllDto) {
@@ -210,15 +245,7 @@ export class ReviewService {
 
   async findByProduct(dto: FindByProductDto) {
     const filter = this.buildFilterFindByProduct(dto);
-    const summary = await this.buildSummary(dto.productId);
-    const items = await this.reviewModel.find(filter).lean().exec();
-
-    return { summary, items };
-  }
-
-  async findSummaryByProduct(productId: string) {
-    const summary = await this.buildSummary(productId);
-    return { summary };
+    return await this.reviewModel.find(filter).lean().exec();
   }
 
   private buildFilterFindByProduct(dto: FindByProductDto) {
@@ -249,7 +276,7 @@ export class ReviewService {
     return filter;
   }
 
-  private async buildSummary(productId: string) {
+  async buildSummary(productId: string) {
     const summaryAgg = await this.reviewModel.aggregate([
       {
         $match: { product: new Types.ObjectId(productId) },
@@ -277,8 +304,18 @@ export class ReviewService {
       .exec();
   }
 
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+  async reply(id: string, dto: ReplyDto) {
+    const updated = await this.reviewModel.findByIdAndUpdate(
+      id,
+      { $set: { ...dto, shopReplyAt: new Date() } },
+      { new: true },
+    );
+
+    if (!updated) {
+      throw new NotFoundException(`Review with id ${id} not found`);
+    }
+
+    return updated;
   }
 
   remove(id: number) {

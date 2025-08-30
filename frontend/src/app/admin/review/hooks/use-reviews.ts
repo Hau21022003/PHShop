@@ -7,21 +7,29 @@ import {
   FindAllBody,
 } from "@/types/review.type";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
+import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
+import { buildPaginatedMeta } from "@/utils/pagination";
 
 export function useReviews() {
   const [reviews, setReviews] = useState<ReviewWithProduct[]>([]);
+  const [pageMeta, setPageMeta] = useState<PageMetaType>(defaultPageMeta);
   const [replyStatusSummary, setReplyStatusSummary] =
     useState<ReplyStatusSummary>();
 
   const fetchReviews = useCallback(async (query: FindAllBody) => {
     try {
       showLoading();
-      const { items, replyStatusSummary } = (
+      const { items, total, replyStatusSummary } = (
         await reviewApiRequest.findAll(query)
       ).payload;
+      const newPageMeta = buildPaginatedMeta(
+        total,
+        query.pageNumber || 1,
+        query.pageSize || 10
+      );
       setReviews(items);
       setReplyStatusSummary(replyStatusSummary);
-      console.log("items", items);
+      setPageMeta(newPageMeta);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({ error });
@@ -30,5 +38,5 @@ export function useReviews() {
     }
   }, []);
 
-  return { reviews, replyStatusSummary, fetchReviews };
+  return { reviews, replyStatusSummary, pageMeta, fetchReviews };
 }

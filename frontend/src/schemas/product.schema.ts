@@ -72,7 +72,11 @@ export type ProductBodyType = z.TypeOf<typeof ProductBody>;
 export const UploadImageRes = z.object({ imageUrl: z.string() });
 export type UploadImageResType = z.TypeOf<typeof UploadImageRes>;
 
-export const ProductRes = ProductBody.extend({ _id: z.string() });
+export const ProductRes = ProductBody.extend({
+  _id: z.string(),
+  reviewCount: z.number().optional(),
+  averageRating: z.number().optional(),
+});
 export type ProductResType = z.TypeOf<typeof ProductRes>;
 
 export const ProductWithCategory = ProductBody.extend({
@@ -80,6 +84,8 @@ export const ProductWithCategory = ProductBody.extend({
   category: CategorySchema.optional(),
   sold: z.number(),
   active: z.boolean(),
+  reviewCount: z.number().optional(),
+  averageRating: z.number().optional(),
 });
 
 export type ProductWithCategoryType = z.TypeOf<typeof ProductWithCategory>;

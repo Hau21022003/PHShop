@@ -25,8 +25,8 @@ export default function TextCollapse({ text }: { text: string }) {
     <div className="">
       <p
         ref={textRef}
-        className={`text-base transition-all duration-300 break-words break-all ${
-          expanded ? "line-clamp-none" : "line-clamp-3"
+        className={`text-base transition-all duration-300 break-words ${
+          expanded ? "line-clamp-none" : "line-clamp-2"
         }`}
       >
         {text}

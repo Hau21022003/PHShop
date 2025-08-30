@@ -12,6 +12,7 @@ export function useReviewFilters() {
       rating: raw.rating ? Number(raw.rating) : undefined,
       replyStatus: raw.replyStatus as ReplyStatus | undefined,
       dateFilter: raw.dateFilter as DateFilter | undefined,
+      pageNumber: raw.pageNumber ? Number(raw.pageNumber) : 1,
     };
 
     const parsed = FindAllBodySchema.parse(transformed);

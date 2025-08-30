@@ -3,6 +3,7 @@ import {
   ReplyStatus,
   ReviewSearchStatus,
 } from "@/enums/review.enum";
+import { createPaginationBody } from "@/schemas/common.schema";
 import z from "zod";
 
 export const CreateReviewBody = z.object({
@@ -20,9 +21,17 @@ export const FindByProductBody = z.object({
   productId: z.string(),
 });
 
-export const FindAllBodySchema = z.object({
-  rating: z.number().int().min(1).max(5).optional(),
-  replyStatus: z.enum(ReplyStatus).optional(),
-  search: z.string().optional(),
-  dateFilter: z.enum(DateFilter).optional(),
+export const FindAllBodySchema = createPaginationBody(
+  z.object({
+    rating: z.number().int().min(1).max(5).optional(),
+    replyStatus: z.enum(ReplyStatus).optional(),
+    search: z.string().optional(),
+    dateFilter: z.enum(DateFilter).optional(),
+  })
+);
+
+export const ReplyBodySchema = z.object({
+  shopReply: z
+    .string("Reply content is required")
+    .min(1, "Reply content is required"),
 });

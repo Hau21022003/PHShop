@@ -4,6 +4,7 @@ import {
   CreateReviewBody,
   FindAllBodySchema,
   FindByProductBody,
+  ReplyBodySchema,
 } from "@/schemas/review.schema";
 import z from "zod";
 
@@ -43,4 +44,7 @@ export type ReplyStatusSummary = Record<ReplyStatus, number>;
 export type FindAllRes = {
   items: ReviewWithProduct[];
   replyStatusSummary: ReplyStatusSummary;
+  total: number;
 };
+
+export type ReplyBody = z.TypeOf<typeof ReplyBodySchema>;

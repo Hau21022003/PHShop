@@ -280,4 +280,22 @@ export class ProductService {
       b.some((x) => x.title === attr.title && x.option === attr.option),
     );
   }
+
+  async updateReviewStats(
+    productId: string,
+    averageRating: number,
+    reviewCount: number,
+  ) {
+    const updated = await this.productModel.findByIdAndUpdate(
+      productId,
+      { $set: { averageRating: averageRating, reviewCount: reviewCount } },
+      { new: true },
+    );
+
+    if (!updated) {
+      throw new NotFoundException(`Product with id ${productId} not found`);
+    }
+
+    return updated;
+  }
 }

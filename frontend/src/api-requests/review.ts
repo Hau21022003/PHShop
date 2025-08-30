@@ -5,6 +5,7 @@ import {
   FindAllRes,
   FindByProductBodyType,
   FindByProductRes,
+  ReplyBody,
   Review,
   SummaryReviewType,
   UploadImageResType,
@@ -24,4 +25,6 @@ export const reviewApiRequest = {
     ),
   findAll: (body: FindAllBody) =>
     http.post<FindAllRes>(`${BASE_URL}/find-all`, body),
+  reply: (reviewId: string, body: ReplyBody) =>
+    http.put<Review>(`${BASE_URL}/${reviewId}/reply`, body),
 };

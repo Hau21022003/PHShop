@@ -6,6 +6,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 export enum ReplyStatus {
   PENDING = 'PENDING',
@@ -24,7 +25,7 @@ export enum DateFilter {
   ALL_TIME = 'All time',
 }
 
-export class FindAllDto {
+export class FindAllDto extends PaginationQueryDto {
   @IsOptional()
   @IsNumber()
   @Min(1)

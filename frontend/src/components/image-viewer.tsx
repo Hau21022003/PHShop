@@ -19,7 +19,7 @@ const ImageViewer = () => {
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center"
+      className="fixed inset-0 bg-black/70 z-[1000] flex items-center justify-center"
       onClick={() => _setSrc(null)}
     >
       <img

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { AccountType } from "@/schemas/account.schema";
 import { OrderResType, StatusOrders } from "@/schemas/order.schema";
 import { extractTime, formatDateShort } from "@/utils/time";
+import Link from "next/link";
 import React, { Fragment } from "react";
 import { toast } from "sonner";
 
@@ -151,15 +152,22 @@ export default function OrderView({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {order.items.map((orderItem, index) => (
           <div key={index} className="flex gap-2">
-            <img
+            <Link
               className="w-40 h-40 shrink-0"
-              alt=""
-              src={orderItem.productSnapshot.image}
-            />
+              href={`/product-detail/${orderItem.product}`}
+            >
+              <img
+                className="w-full h-full object-cover cursor-pointer"
+                alt=""
+                src={orderItem.productSnapshot.image}
+              />
+            </Link>
             <div className="space-y-1 text-gray-500">
-              <p className="font-medium line-clamp-1 text-black">
-                {orderItem.productSnapshot.name}
-              </p>
+              <Link href={`/product-detail/${orderItem.product}`}>
+                <p className="font-medium line-clamp-1 text-black">
+                  {orderItem.productSnapshot.name}
+                </p>
+              </Link>
               {orderItem.attributeVariant?.length !== 0 && (
                 <p>
                   {orderItem.attributeVariant?.reduce(

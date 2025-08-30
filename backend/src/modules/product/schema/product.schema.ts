@@ -87,6 +87,12 @@ export class Product extends Document {
 
   @Prop({ type: [VariantStructure], default: [] })
   variantStructure: VariantStructure[];
+
+  @Prop({ default: 0 })
+  reviewCount: number;
+
+  @Prop({ default: 0 })
+  averageRating: number;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

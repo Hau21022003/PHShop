@@ -31,6 +31,7 @@ export default function SearchContainer() {
       <p className="text-gray-500 shrink-0">Search</p>
       <div className="p-1 px-2 border border-gray-400 2xl:max-w-2xl w-full">
         <input
+          defaultValue={searchParams.get("search") || 0}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();

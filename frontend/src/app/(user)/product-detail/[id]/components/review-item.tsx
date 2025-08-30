@@ -5,6 +5,8 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { User } from "lucide-react";
 import { formatDateWithRelative } from "@/utils/time";
+import { showImage } from "@/components/image-viewer";
+import TextCollapse from "@/components/text-collapse";
 
 export default function ReviewItem({ review }: { review: Review }) {
   return (
@@ -45,13 +47,24 @@ export default function ReviewItem({ review }: { review: Review }) {
         </div>
       </div>
       {/* Description */}
-      <div className="pl-15">
-        <p>{review.content}</p>
+      <div className="pl-15 space-y-4">
+        <TextCollapse text={review.content} />
         {review.images.length !== 0 && (
-          <div className="mt-4 flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4">
             {review.images.map((itemUrl, idx) => (
-              <img key={idx} src={itemUrl} alt="" className="w-24 h-24" />
+              <img
+                onClick={() => showImage(itemUrl)}
+                key={idx}
+                src={itemUrl}
+                alt=""
+                className="w-24 h-24 object-cover cursor-pointer"
+              />
             ))}
+          </div>
+        )}
+        {review.shopReply && (
+          <div className="py-2 px-4 bg-gray-200">
+            <TextCollapse text={review.shopReply} />
           </div>
         )}
       </div>

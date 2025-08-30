@@ -7,11 +7,19 @@ import { SlidersHorizontal } from "lucide-react";
 import { useReviewFilters } from "@/app/admin/review/hooks/use-review-filters";
 import { useReviews } from "@/app/admin/review/hooks/use-reviews";
 import ReviewTable from "@/app/admin/review/components/review-table";
+import PaginationContainer from "@/app/admin/review/components/pagination";
+import { useReplyDialog } from "@/app/admin/review/hooks/use-reply-dialog";
+import ReplyDialog from "@/app/admin/review/components/reply-dialog";
 
 export default function ReviewPage() {
   const { loadFromParams } = useReviewFilters();
-  const { reviews, replyStatusSummary, fetchReviews } = useReviews();
-
+  const { reviews, replyStatusSummary, pageMeta, fetchReviews } = useReviews();
+  const {
+    isOpenReplyDialog,
+    selectedReview,
+    handleCloseReplyDialog,
+    handleOpenReplyDialog,
+  } = useReplyDialog();
   const searchParams = useSearchParams();
   useEffect(() => {
     const query = loadFromParams(searchParams);
@@ -37,8 +45,19 @@ export default function ReviewPage() {
             </div>
           </SheetContent>
         </Sheet>
-        <ReviewTable reviews={reviews} />
+        <ReviewTable
+          handleOpenReplyDialog={handleOpenReplyDialog}
+          reviews={reviews}
+        />
+        <PaginationContainer pageMeta={pageMeta} />
       </div>
+      {selectedReview && (
+        <ReplyDialog
+          open={isOpenReplyDialog}
+          onClose={handleCloseReplyDialog}
+          review={selectedReview}
+        />
+      )}
     </div>
   );
 }

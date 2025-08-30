@@ -14,8 +14,8 @@ import React, { useEffect, useState } from "react";
 export default function ProductDetailPage() {
   const params = useParams<{ id: string | undefined }>();
   const [product, setProduct] = useState<ProductDetailType>();
-  const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
-  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(true);
   const loadProduct = async () => {
     showLoading();
     const productId = params.id;
