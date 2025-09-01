@@ -2,6 +2,7 @@
 
 import authApiRequest from "@/api-requests/auth";
 import { useAppContext } from "@/app/app-provider";
+import { authStorage } from "@/lib/auth/auth-storage";
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
@@ -16,7 +17,8 @@ function LogoutLogic() {
     authApiRequest
       .logoutFromNextClientToNextServer(true, signal)
       .then(() => {
-        localStorage.removeItem("sessionToken"); // Nếu bạn đang lưu token
+        // localStorage.removeItem("sessionToken"); // Nếu bạn đang lưu token
+        authStorage.clear();
         setUser(null);
         router.replace(`/login?redirectFrom=${pathname}`);
       })
@@ -29,7 +31,7 @@ function LogoutLogic() {
       controller.abort();
     };
   }, [router, pathname, setUser]);
-  return <div className="text-sm text-gray-400">Logging out...</div>
+  return <div className="text-sm text-gray-400">Logging out...</div>;
 }
 
 export default function LogoutPage() {

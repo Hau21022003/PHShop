@@ -10,7 +10,11 @@ export class UserSnapshot {
 
 @Schema({ timestamps: true })
 export class Review {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true,
+  })
   product: Product;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true })

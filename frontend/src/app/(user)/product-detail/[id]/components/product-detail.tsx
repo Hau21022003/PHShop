@@ -193,40 +193,40 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     }
   };
 
-  const [reviewsSummary, setReviewsSummary] = useState<SummaryReviewType>();
-  const loadPreviewSummary = async () => {
-    if (!product) return;
-    try {
-      const summary = (await reviewApiRequest.findSummaryByProduct(product._id))
-        .payload.summary;
-      setReviewsSummary(summary);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      handleErrorApi({ error });
-    }
-  };
-  useEffect(() => {
-    loadPreviewSummary();
-  }, [product]);
+  // const [reviewsSummary, setReviewsSummary] = useState<SummaryReviewType>();
+  // const loadPreviewSummary = async () => {
+  //   if (!product) return;
+  //   try {
+  //     const summary = (await reviewApiRequest.findSummaryByProduct(product._id))
+  //       .payload.summary;
+  //     setReviewsSummary(summary);
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   } catch (error: any) {
+  //     handleErrorApi({ error });
+  //   }
+  // };
+  // useEffect(() => {
+  //   loadPreviewSummary();
+  // }, [product]);
 
-  const getTotalReviews = (summary: SummaryReviewType) => {
-    const totalCount = summary
-      ? Object.values(summary).reduce((acc, count) => acc + count, 0)
-      : 0;
-    return totalCount;
-  };
+  // const getTotalReviews = (summary: SummaryReviewType) => {
+  //   const totalCount = summary
+  //     ? Object.values(summary).reduce((acc, count) => acc + count, 0)
+  //     : 0;
+  //   return totalCount;
+  // };
 
-  const getAverageScore = (summary: SummaryReviewType) => {
-    const totalScore = summary
-      ? Object.entries(summary).reduce(
-          (acc, [rating, count]) => acc + Number(rating) * count,
-          0
-        )
-      : 0;
-    const totalCount = getTotalReviews(summary);
-    const average = totalCount > 0 ? totalScore / totalCount : 0;
-    return average;
-  };
+  // const getAverageScore = (summary: SummaryReviewType) => {
+  //   const totalScore = summary
+  //     ? Object.entries(summary).reduce(
+  //         (acc, [rating, count]) => acc + Number(rating) * count,
+  //         0
+  //       )
+  //     : 0;
+  //   const totalCount = getTotalReviews(summary);
+  //   const average = totalCount > 0 ? totalScore / totalCount : 0;
+  //   return average;
+  // };
 
   return (
     <div className="space-y-2">
@@ -239,7 +239,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       <div className="items-stretch flex gap-3">
         <div className="flex items-center gap-2">
           <p className="leading-none">
-            {reviewsSummary && getAverageScore(reviewsSummary).toFixed(1)}
+            {(product?.averageRating || 0).toFixed(1)}
           </p>
           <FontAwesomeIcon
             icon={faStar}
@@ -248,9 +248,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           />
         </div>
         <div className="border-l border-gray-300"></div>
-        <p className="leading-none">
-          {reviewsSummary && getTotalReviews(reviewsSummary)} Reviews
-        </p>
+        <p className="leading-none">{product?.reviewCount || 0} Reviews</p>
         <div className="border-l border-gray-300"></div>
         <p className="leading-none">{product?.sold} Sold</p>
       </div>

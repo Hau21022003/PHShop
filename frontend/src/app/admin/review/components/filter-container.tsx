@@ -1,7 +1,11 @@
 import SearchContainer from "@/app/admin/review/components/search-container";
 import { ReplyStatus } from "@/enums/review.enum";
 import { cn } from "@/lib/utils";
-import { FindAllBody, ReplyStatusSummary } from "@/types/review.type";
+import {
+  FindAllBody,
+  RatingSummary,
+  ReplyStatusSummary,
+} from "@/types/review.type";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -9,8 +13,10 @@ import React from "react";
 
 export default function FilterContainer({
   replyStatusSummary,
+  ratingSummary,
 }: {
   replyStatusSummary?: ReplyStatusSummary;
+  ratingSummary?: RatingSummary;
 }) {
   const searchParams = useSearchParams();
   const replyStatusOptions = [
@@ -44,31 +50,31 @@ export default function FilterContainer({
       label: "1 Star",
       value: 1,
       active: Number(searchParams.get("rating")) === 1,
-      count: 0,
+      count: (ratingSummary ? ratingSummary[1] : 0) || 0,
     },
     {
       label: "2 Star",
       value: 2,
       active: Number(searchParams.get("rating")) === 2,
-      count: 0,
+      count: (ratingSummary ? ratingSummary[2] : 0) || 0,
     },
     {
       label: "3 Star",
       value: 3,
       active: Number(searchParams.get("rating")) === 3,
-      count: 0,
+      count: (ratingSummary ? ratingSummary[3] : 0) || 0,
     },
     {
       label: "4 Star",
       value: 4,
       active: Number(searchParams.get("rating")) === 4,
-      count: 0,
+      count: (ratingSummary ? ratingSummary[4] : 0) || 0,
     },
     {
       label: "5 Star",
       value: 5,
       active: Number(searchParams.get("rating")) === 5,
-      count: 0,
+      count: (ratingSummary ? ratingSummary[5] : 0) || 0,
     },
   ];
   const getBaseParams = (...excludes: (keyof FindAllBody)[]) => {

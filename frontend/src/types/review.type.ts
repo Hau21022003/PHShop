@@ -41,9 +41,11 @@ export type ReviewWithProduct = Review & {
 
 export type FindAllBody = z.TypeOf<typeof FindAllBodySchema>;
 export type ReplyStatusSummary = Record<ReplyStatus, number>;
+export type RatingSummary = Record<number, number>;
 export type FindAllRes = {
   items: ReviewWithProduct[];
   replyStatusSummary: ReplyStatusSummary;
+  ratingSummary: RatingSummary;
   total: number;
 };
 

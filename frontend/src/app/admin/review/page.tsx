@@ -13,7 +13,8 @@ import ReplyDialog from "@/app/admin/review/components/reply-dialog";
 
 export default function ReviewPage() {
   const { loadFromParams } = useReviewFilters();
-  const { reviews, replyStatusSummary, pageMeta, fetchReviews } = useReviews();
+  const { reviews, replyStatusSummary, ratingSummary, pageMeta, fetchReviews } =
+    useReviews();
   const {
     isOpenReplyDialog,
     selectedReview,
@@ -30,7 +31,10 @@ export default function ReviewPage() {
       <div className="w-full max-w-screen-lg mx-auto space-y-4">
         {/* Header */}
         <div className="hidden md:block p-4 border-2 border-black">
-          <FilterContainer replyStatusSummary={replyStatusSummary} />
+          <FilterContainer
+            replyStatusSummary={replyStatusSummary}
+            ratingSummary={ratingSummary}
+          />
         </div>
         <Sheet>
           <SheetTrigger asChild>
@@ -41,7 +45,10 @@ export default function ReviewPage() {
           </SheetTrigger>
           <SheetContent side="right" className="h-full overflow-y-auto">
             <div className="px-4 pt-12">
-              <FilterContainer replyStatusSummary={replyStatusSummary} />
+              <FilterContainer
+                replyStatusSummary={replyStatusSummary}
+                ratingSummary={ratingSummary}
+              />
             </div>
           </SheetContent>
         </Sheet>

@@ -1,3 +1,4 @@
+import { Role } from "@/enums/user.enum";
 import z from "zod";
 
 export const ContactDetailsSchema = z.object({
@@ -16,7 +17,7 @@ export const AccountSchema = z.object({
   fullName: z.string(),
   avatar: z.string().nullable(),
   email: z.string(),
-  role: z.enum(["admin", "user"]),
+  role: z.enum(Role),
   isActive: z.boolean(),
   createdAt: z.date(),
   contactDetails: ContactDetailsSchema.optional(),

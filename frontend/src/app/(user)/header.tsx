@@ -9,7 +9,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingBag } from "@fortawesome/free-solid-svg-icons";
+import { faShoppingBag, faHeadset } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/app/app-provider";
@@ -21,7 +21,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export default function UserHeader() {
+export default function UserHeader({
+  handleOpenChat,
+}: {
+  handleOpenChat: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAppContext();
   const { cart } = useUserContext();
@@ -106,7 +110,6 @@ export default function UserHeader() {
                     </div>
                   </div>
                 ) : (
-                  // <p className="p-3 text-gray-500">Giỏ hàng trống</p>
                   <div className="py-14 flex flex-col items-center gap-2">
                     <FontAwesomeIcon
                       icon={faShoppingBag}
@@ -126,6 +129,14 @@ export default function UserHeader() {
           >
             <Package className="w-6 h-6" />
           </Link>
+          {isAuthenticated && (
+            <FontAwesomeIcon
+              onClick={handleOpenChat}
+              icon={faHeadset}
+              size="lg"
+              className="text-black w-5 h-5 cursor-pointer"
+            />
+          )}
 
           {/* Profile icon */}
           {!isAuthenticated && (

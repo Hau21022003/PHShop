@@ -40,10 +40,11 @@ export class ReviewController {
   @Public()
   @Post('find-by-product')
   async findByProduct(@Body() dto: FindByProductDto) {
-    const summary = await this.reviewService.buildSummary(dto.productId);
+    const summary = await this.reviewService.buildProductRatingSummary(
+      dto.productId,
+    );
     const items = await this.reviewService.findByProduct(dto);
     return { summary, items };
-    // return this.reviewService.findByProduct(dto);
   }
 
   @UseGuards(AdminGuard)
@@ -60,7 +61,8 @@ export class ReviewController {
   @Public()
   @Get(':productId/find-summary')
   async findSummaryByProduct(@Param('productId') productId: string) {
-    const summary = await this.reviewService.buildSummary(productId);
+    const summary =
+      await this.reviewService.buildProductRatingSummary(productId);
     return { summary };
   }
 

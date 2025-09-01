@@ -11,6 +11,7 @@ import { IsExistConstraint } from 'src/common/validators/is-exist-constraint.val
 import { mongooseConfig } from 'src/config/db.config';
 import { CartModule } from 'src/modules/cart/cart.module';
 import { CategoryModule } from 'src/modules/category/category.module';
+import { ChatModule } from 'src/modules/chat/chat.module';
 import { DownloadModule } from 'src/modules/download/download.module';
 import { OrdersModule } from 'src/modules/orders/orders.module';
 import { ProductModule } from 'src/modules/product/product.module';
@@ -38,6 +39,7 @@ import { UsersModule } from 'src/modules/users/users.module';
     OrdersModule,
     SettingsModule,
     ReviewModule,
+    ChatModule,
   ],
   providers: [
     AppService,

@@ -124,10 +124,10 @@ export class ReviewService {
     ]);
     const items = result[0].items;
     const total = result[0].totalCount[0]?.count || 0;
+    const { replyStatusSummary, ratingSummary } =
+      await this.buildReviewSummaries();
 
-    const replyStatusSummary = await this.buildReplyStatusSummary();
-
-    return { replyStatusSummary, items, total };
+    return { replyStatusSummary, ratingSummary, items, total };
   }
 
   private buildFilterFindAll(query: FindAllDto) {
@@ -215,23 +215,38 @@ export class ReviewService {
     return { start, end };
   }
 
-  private async buildReplyStatusSummary() {
-    const summaryAgg = await this.reviewModel.aggregate([
+  async buildReviewSummaries() {
+    const [result] = await this.reviewModel.aggregate([
       {
-        $group: {
-          _id: {
-            $cond: [
-              { $ifNull: ['$shopReply', false] },
-              ReplyStatus.REPLIED,
-              ReplyStatus.PENDING,
-            ],
-          },
-          total: { $sum: 1 },
+        $facet: {
+          ratingSummary: [{ $group: { _id: '$rating', total: { $sum: 1 } } }],
+          replyStatusSummary: [
+            {
+              $group: {
+                _id: {
+                  $cond: [
+                    { $ifNull: ['$shopReply', false] },
+                    ReplyStatus.REPLIED,
+                    ReplyStatus.PENDING,
+                  ],
+                },
+                total: { $sum: 1 },
+              },
+            },
+          ],
         },
       },
     ]);
 
-    return summaryAgg.reduce(
+    const ratingSummary = result.ratingSummary.reduce(
+      (acc, cur) => {
+        acc[cur._id] = cur.total;
+        return acc;
+      },
+      {} as Record<number, number>,
+    );
+
+    const replyStatusSummary = result.replyStatusSummary.reduce(
       (acc, cur) => {
         acc[cur._id as ReplyStatus] = cur.total;
         return acc;
@@ -241,6 +256,8 @@ export class ReviewService {
         number
       >,
     );
+
+    return { ratingSummary, replyStatusSummary };
   }
 
   async findByProduct(dto: FindByProductDto) {
@@ -276,7 +293,7 @@ export class ReviewService {
     return filter;
   }
 
-  async buildSummary(productId: string) {
+  async buildProductRatingSummary(productId: string) {
     const summaryAgg = await this.reviewModel.aggregate([
       {
         $match: { product: new Types.ObjectId(productId) },

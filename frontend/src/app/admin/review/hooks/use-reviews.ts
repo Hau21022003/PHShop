@@ -5,6 +5,7 @@ import {
   ReviewWithProduct,
   ReplyStatusSummary,
   FindAllBody,
+  RatingSummary,
 } from "@/types/review.type";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
 import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
@@ -15,11 +16,12 @@ export function useReviews() {
   const [pageMeta, setPageMeta] = useState<PageMetaType>(defaultPageMeta);
   const [replyStatusSummary, setReplyStatusSummary] =
     useState<ReplyStatusSummary>();
+  const [ratingSummary, setRatingSummary] = useState<RatingSummary>();
 
   const fetchReviews = useCallback(async (query: FindAllBody) => {
     try {
       showLoading();
-      const { items, total, replyStatusSummary } = (
+      const { items, total, replyStatusSummary, ratingSummary } = (
         await reviewApiRequest.findAll(query)
       ).payload;
       const newPageMeta = buildPaginatedMeta(
@@ -30,6 +32,7 @@ export function useReviews() {
       setReviews(items);
       setReplyStatusSummary(replyStatusSummary);
       setPageMeta(newPageMeta);
+      setRatingSummary(ratingSummary);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleErrorApi({ error });
@@ -38,5 +41,5 @@ export function useReviews() {
     }
   }, []);
 
-  return { reviews, replyStatusSummary, pageMeta, fetchReviews };
+  return { reviews, replyStatusSummary, ratingSummary, pageMeta, fetchReviews };
 }

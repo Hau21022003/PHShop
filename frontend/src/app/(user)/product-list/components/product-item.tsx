@@ -55,7 +55,7 @@ export default function ProductItem({ product }: ProductItemProps) {
       >
         {product.name}
       </Link>
-      <div className="w-full flex flex-wrap justify-center gap-4">
+      <div className="w-full flex flex-wrap justify-center gap-2">
         <p className="text-base font-medium">
           {getPriceDiscount(product.price, product.discount || 0)} VND
         </p>
