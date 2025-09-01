@@ -1,25 +1,44 @@
 import { socketService } from "@/lib/socket";
-import { Message, SendMessageBody } from "@/types/message.type";
+import { Message, SendMessageBody } from "@/types/chat.type";
 import { useEffect, useState } from "react";
 
 export function useChat() {
+  // Mới nhất xếp cuối
   const [messages, setMessages] = useState<Message[]>([]);
-  const addMessage = (message: Message) => {
-    setMessages((prev) => [message, ...prev]);
+  const [shouldScroll, setShouldScroll] = useState(false);
+
+  const addMessage = (message: Message, position: "top" | "bottom") => {
+    setMessages((prev) => {
+      const exists = prev.some((oldMsg) => oldMsg._id === message._id);
+      if (exists) return prev;
+
+      if (position === "top") {
+        return [message, ...prev];
+      } else {
+        return [...prev, message];
+      }
+    });
   };
+
+  const addMessageToTop = (message: Message) => addMessage(message, "top");
+  const addMessageToBottom = (message: Message) => {
+    addMessage(message, "bottom");
+    setShouldScroll(true); // báo cần scroll
+  };
+
   useEffect(() => {
     const socket = socketService.connect();
 
     socket.on("receive_message", (data: Message) => {
-      addMessage(data);
+      addMessageToBottom(data);
     });
 
     socket.on("admin_message", (data) => {
-      addMessage(data);
+      addMessageToBottom(data);
     });
 
     socket.on("message_confirmed", (data) => {
-      addMessage(data);
+      addMessageToBottom(data);
     });
 
     return () => {
@@ -33,5 +52,7 @@ export function useChat() {
     console.log("send", message);
   };
 
-  return { messages, sendMessage };
+  const resetScroll = () => setShouldScroll(false);
+
+  return { messages, sendMessage, addMessageToTop, shouldScroll, resetScroll };
 }

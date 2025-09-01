@@ -33,8 +33,8 @@ export const PageMeta = z.object({
   pageNumber: z.number().default(1),
   pageSize: z.number().default(10),
   totalPages: z.number().default(0),
-  hasNextPage: z.boolean().default(false),
-  hasPrevPage: z.boolean().default(false),
+  hasNextPage: z.boolean().default(true),
+  hasPrevPage: z.boolean().default(true),
 });
 export type PageMetaType = z.TypeOf<typeof PageMeta>;
 

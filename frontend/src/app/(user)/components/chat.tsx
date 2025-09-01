@@ -6,16 +6,13 @@ import { Form, FormField, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments, faHeadset } from "@fortawesome/free-solid-svg-icons";
-import { SendMessageBodySchema } from "@/schemas/message.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUp, Plus, X } from "lucide-react";
-import React, { useRef } from "react";
-import { useForm } from "react-hook-form";
-import { handleErrorApi } from "@/lib/error";
-import { chatApiRequest } from "@/api-requests/chat";
-import { toast } from "sonner";
+import React, { useEffect } from "react";
 import { showImage } from "@/components/image-viewer";
 import { formatDateWithRelative } from "@/utils/time";
+import { useSendMessage } from "@/app/hooks/use-send-message";
+import { useLoadMessage } from "@/app/hooks/use-load-message";
+import { Role } from "@/enums/user.enum";
 
 export default function Chat({
   handleCloseChat,
@@ -23,64 +20,26 @@ export default function Chat({
   handleCloseChat: () => void;
 }) {
   const { user } = useAppContext();
-  const { messages, sendMessage } = useChat();
-  const form = useForm({
-    resolver: zodResolver(SendMessageBodySchema),
-    defaultValues: {
-      message: "",
-      images: [],
-    },
-  });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const selectedFiles = event.target.files;
-    const images = form.getValues("images") || [];
-    if (images.length >= 4) {
-      toast.error("Error", {
-        duration: 2000,
-        description: "You can only upload up to 4 images.",
-      });
-      return;
-    }
-    if (selectedFiles && selectedFiles.length > 0) {
-      const fileArray = Array.from(selectedFiles);
-      const imageFiles = fileArray.filter((file) =>
-        file.type.startsWith("image/")
-      );
-      try {
-        const formData = new FormData();
-        formData.append("image", imageFiles[0]);
-        const uploadRsp = await chatApiRequest.uploadImage(formData);
-        form.setValue("images", [
-          ...(form.getValues("images") || []),
-          uploadRsp.payload.imageUrl,
-        ]);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        handleErrorApi({ error });
-      }
-    }
-  };
+  const { messages, sendMessage, addMessageToTop, resetScroll, shouldScroll } =
+    useChat();
+  const { messageContainerRef } = useLoadMessage(Role.USER, addMessageToTop);
+  const { fileInputRef, handleFileChange, removeImage, sendMessageForm } =
+    useSendMessage();
 
-  const removeImage = (url: string) => {
-    form.setValue(
-      "images",
-      (form.watch("images") || []).filter((imageUrl) => imageUrl !== url),
-      { shouldValidate: true }
-    );
-  };
+  const groupedMessages = messages.reduce((groups, msg) => {
+    const dateLabel = formatDateWithRelative(msg.createdAt);
+    if (!groups[dateLabel]) groups[dateLabel] = [];
+    groups[dateLabel].push(msg);
+    return groups;
+  }, {} as Record<string, typeof messages>);
 
-  const groupedMessages = messages
-    .slice()
-    .reverse()
-    .reduce((groups, msg) => {
-      const dateLabel = formatDateWithRelative(msg.createdAt);
-      if (!groups[dateLabel]) groups[dateLabel] = [];
-      groups[dateLabel].push(msg);
-      return groups;
-    }, {} as Record<string, typeof messages>);
+  useEffect(() => {
+    if (shouldScroll && messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
+      resetScroll();
+    }
+  }, [messages, shouldScroll, resetScroll]);
 
   return (
     <div className="w-full h-full flex flex-col bg-white">
@@ -95,7 +54,10 @@ export default function Chat({
         </div>
         <X onClick={handleCloseChat} className="w-5 h-5 cursor-pointer" />
       </div>
-      <div className="flex-1 overflow-y-auto space-y-4 p-4 flex flex-col">
+      <div
+        ref={messageContainerRef}
+        className="flex-1 overflow-y-auto space-y-4 p-4 flex flex-col"
+      >
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 text-gray-400">
             <FontAwesomeIcon icon={faComments} size="2x" className="mb-2" />
@@ -162,18 +124,18 @@ export default function Chat({
       </div>
 
       {/* Ô nhập tin nhắn */}
-      <Form {...form}>
+      <Form {...sendMessageForm}>
         <form
           className="relative"
-          onSubmit={form.handleSubmit((data) => {
+          onSubmit={sendMessageForm.handleSubmit((data) => {
             sendMessage(data);
-            form.setValue("message", "");
-            form.setValue("images", []);
+            sendMessageForm.setValue("message", "");
+            sendMessageForm.setValue("images", []);
           })}
         >
-          {form.watch("images").length !== 0 && (
+          {sendMessageForm.watch("images").length !== 0 && (
             <div className="flex gap-2 flex-wrap px-4 pb-2 bg-white/70">
-              {form.getValues("images").map((url, idx) => (
+              {sendMessageForm.getValues("images").map((url, idx) => (
                 <div
                   key={idx}
                   className="relative w-[calc(25%-6px)] aspect-square overflow-hidden bg-gray-100 shrink-0"
@@ -196,7 +158,7 @@ export default function Chat({
             </div>
           )}
           <FormField
-            control={form.control}
+            control={sendMessageForm.control}
             name="message"
             render={({ field, formState }) => (
               <FormItem className="border-t border-gray-200 p-2 flex items-center gap-2">
