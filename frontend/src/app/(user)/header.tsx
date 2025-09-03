@@ -28,7 +28,7 @@ export default function UserHeader({
 }) {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useAppContext();
-  const { cart } = useUserContext();
+  const { cart, countUnreadMessages } = useUserContext();
 
   const menuItems = [
     { label: "All", href: "/product-list" },
@@ -130,12 +130,21 @@ export default function UserHeader({
             <Package className="w-6 h-6" />
           </Link>
           {isAuthenticated && (
-            <FontAwesomeIcon
-              onClick={handleOpenChat}
-              icon={faHeadset}
-              size="lg"
-              className="text-black w-5 h-5 cursor-pointer"
-            />
+            <div className="flex flex-col items-center cursor-pointer">
+              <div className="relative">
+                <FontAwesomeIcon
+                  onClick={handleOpenChat}
+                  icon={faHeadset}
+                  size="lg"
+                  className="text-black cursor-pointer"
+                />
+                {countUnreadMessages !== 0 && (
+                  <p className="absolute -top-1 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-orange-500">
+                    {countUnreadMessages}
+                  </p>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Profile icon */}

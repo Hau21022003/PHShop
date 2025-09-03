@@ -127,9 +127,9 @@ export default function ProductListPage() {
         <p className="text-gray-500">{pageMeta.current.total} items</p>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <button className="px-3 py-1 bg-gray-200 flex items-center gap-2 rounded-xl cursor-pointer">
-              <p className="font-medium">Filter</p>
-              <Settings2 className="h-4 w-4" />
+            <button className="px-3 py-[6px] bg-gray-200 flex items-center gap-2 cursor-pointer">
+              <p className="font-medium leading-none">Filter</p>
+              <Settings2 className="h-5 w-5" />
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="p-6 h-full overflow-y-auto">

@@ -34,7 +34,96 @@ export class ChatService {
       .limit(query.pageSize)
       .lean()
       .exec();
+
     return { items, total };
+  }
+
+  async markAllAsRead(userId: string, fromRole: Role) {
+    const filter = {
+      user: new Types.ObjectId(userId),
+      fromRole,
+      isRead: false,
+    };
+
+    const result = await this.chatModel.updateMany(filter, {
+      $set: { isRead: true },
+    });
+
+    return {
+      modifiedCount: result.modifiedCount,
+    };
+  }
+
+  async countUnreadMessages(fromRole: Role, userId?: string) {
+    const filter: Record<string, any> = {
+      fromRole,
+      isRead: false,
+    };
+    if (userId) {
+      filter.user = new Types.ObjectId(userId);
+    }
+    const count = await this.chatModel.countDocuments(filter);
+    return { count };
+  }
+
+  async getConversations() {
+    return this.chatModel
+      .aggregate([
+        // Sắp xếp theo thời gian mới nhất trước
+        { $sort: { createdAt: -1 } },
+        {
+          $group: {
+            _id: '$user', // gom theo user
+            latestMessage: { $first: '$$ROOT' }, // lấy message mới nhất
+            unreadCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ['$fromRole', Role.USER] },
+                      { $eq: ['$isRead', false] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: { userId: '$_id' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$_id', '$$userId'] } } },
+              { $match: { role: Role.USER } }, // chỉ lấy user có role USER
+            ],
+            as: 'user',
+          },
+        },
+        { $unwind: '$user' }, // flatten user object
+        {
+          $project: {
+            _id: 0,
+            user: {
+              _id: '$user._id',
+              fullName: '$user.contactDetails.fullName',
+              email: '$user.email',
+            },
+            latestMessage: {
+              _id: '$latestMessage._id',
+              message: '$latestMessage.message',
+              fromRole: '$latestMessage.fromRole',
+              isRead: '$latestMessage.isRead',
+              createdAt: '$latestMessage.createdAt',
+            },
+            unreadCount: 1,
+          },
+        },
+        { $sort: { 'latestMessage.createdAt': -1 } }, // sắp xếp theo thời gian mới nhất
+      ])
+      .exec();
   }
 
   remove(id: string) {

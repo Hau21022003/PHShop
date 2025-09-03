@@ -11,41 +11,10 @@ import {
   Car,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SaveFreeShipping from "@/app/admin/components/save-free-shipping";
-
-const SidebarItem = ({
-  icon,
-  label,
-  url,
-  active = false,
-  isCollapsed = false,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  url: string;
-  active?: boolean;
-  isCollapsed?: boolean;
-}) => {
-  return (
-    <Link
-      href={url}
-      className={`flex items-center outline-none justify-between py-2 px-3 rounded-lg transition cursor-pointer
-        ${active ? "bg-white text-black" : "cursor-pointer text-gray-500"}`}
-    >
-      <div className="flex items-center gap-3">
-        <div className={`${active ? "text-blue-400" : "text-gray-500"}`}>
-          {icon}
-        </div>
-        {!isCollapsed && (
-          <span className="font-medium leading-none tracking-wide">
-            {label}
-          </span>
-        )}
-      </div>
-    </Link>
-  );
-};
+import { chatApiRequest } from "@/api-requests/chat";
+import { socketService } from "@/lib/socket";
 
 const AdminSidebar = () => {
   const pathname = usePathname();
@@ -79,9 +48,9 @@ const AdminSidebar = () => {
   const GeneralMenUOptions = [
     {
       icon: <MessageCircleMore className="w-6 h-6" />,
-      label: "Message",
-      url: "/admin/message",
-      active: pathname == "/admin/message",
+      label: "Customer Care",
+      url: "/admin/chat",
+      active: pathname == "/admin/chat",
     },
     {
       icon: <StarHalf className="w-6 h-6" />,
@@ -90,6 +59,32 @@ const AdminSidebar = () => {
       active: pathname == "/admin/review",
     },
   ];
+
+  const [countUnreadMessages, setCountUnreadMessages] = useState(0);
+  const fetchCountUnreadMessages = async () => {
+    try {
+      const count = (await chatApiRequest.countUserUnreadMessages()).payload
+        .count;
+      setCountUnreadMessages(count);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchCountUnreadMessages();
+    const socket = socketService.connect();
+
+    socket.on("receive_message", () => {
+      fetchCountUnreadMessages();
+    });
+
+    return () => {
+      socketService.disconnect();
+    };
+    // Ham dọn dẹp
+  }, []);
 
   return (
     <aside
@@ -110,12 +105,6 @@ const AdminSidebar = () => {
             )}
           </div>
         )}
-        {/* <div
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="lg:block hidden px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer"
-        >
-          {isCollapsed ? <PanelRightClose /> : <PanelLeftClose />}
-        </div> */}
       </div>
       <div
         className="flex-1 flex flex-col justify-between lg:overflow-y-auto"
@@ -129,27 +118,60 @@ const AdminSidebar = () => {
           <p className="text-sm text-gray-500">Main menu</p>
           <nav className="flex flex-col gap-3">
             {MainMenuOptions.map((item) => (
-              <SidebarItem
+              <Link
                 key={item.label}
-                icon={item.icon}
-                label={item.label}
-                url={item.url}
-                active={item.active}
-                isCollapsed={isCollapsed}
-              />
+                href={item.url}
+                className={`flex items-center outline-none justify-between py-2 px-3 rounded-lg transition cursor-pointer ${
+                  item.active
+                    ? "bg-white text-black"
+                    : "cursor-pointer text-gray-500"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`${
+                      item.active ? "text-blue-400" : "text-gray-500"
+                    }`}
+                  >
+                    {item.icon}
+                  </div>
+                  <span className="font-medium leading-none tracking-wide">
+                    {item.label}
+                  </span>
+                </div>
+              </Link>
             ))}
           </nav>
           <p className="text-sm text-gray-500 mt-6">General</p>
           <nav className="flex flex-col gap-3">
             {GeneralMenUOptions.map((item) => (
-              <SidebarItem
+              <Link
                 key={item.label}
-                icon={item.icon}
-                label={item.label}
-                url={item.url}
-                active={item.active}
-                isCollapsed={isCollapsed}
-              />
+                href={item.url}
+                className={`flex items-center outline-none justify-between py-2 px-3 rounded-lg transition cursor-pointer ${
+                  item.active
+                    ? "bg-white text-black"
+                    : "cursor-pointer text-gray-500"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`${
+                      item.active ? "text-blue-400" : "text-gray-500"
+                    }`}
+                  >
+                    {item.icon}
+                  </div>
+                  <span className="font-medium leading-none tracking-wide">
+                    {item.label}
+                  </span>
+                  {item.url.includes("chat") && countUnreadMessages !== 0 && (
+                    <p className="p-1 px-2 text-xs font-medium leading-none bg-black text-white rounded-md">
+                      {countUnreadMessages < 100 ? countUnreadMessages : "99+"}
+                    </p>
+                  )}
+                </div>
+              </Link>
             ))}
             <button
               onClick={onOpenFreeShipping}
@@ -159,11 +181,9 @@ const AdminSidebar = () => {
                 <div className="text-gray-500">
                   <Car className="w-6 h-6" />
                 </div>
-                {!isCollapsed && (
-                  <span className="font-medium text-gray-500 leading-none tracking-wide">
-                    Shipping Fee
-                  </span>
-                )}
+                <span className="font-medium text-gray-500 leading-none tracking-wide">
+                  Shipping Fee
+                </span>
               </div>
             </button>
           </nav>

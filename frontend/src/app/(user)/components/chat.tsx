@@ -13,6 +13,8 @@ import { formatDateWithRelative } from "@/utils/time";
 import { useSendMessage } from "@/app/hooks/use-send-message";
 import { useLoadMessage } from "@/app/hooks/use-load-message";
 import { Role } from "@/enums/user.enum";
+import { chatApiRequest } from "@/api-requests/chat";
+import { useUserContext } from "@/app/(user)/user-provider";
 
 export default function Chat({
   handleCloseChat,
@@ -20,6 +22,7 @@ export default function Chat({
   handleCloseChat: () => void;
 }) {
   const { user } = useAppContext();
+  const { fetchCountUnreadMessages } = useUserContext();
   const { messages, sendMessage, addMessageToTop, resetScroll, shouldScroll } =
     useChat();
   const { messageContainerRef } = useLoadMessage(Role.USER, addMessageToTop);
@@ -40,6 +43,19 @@ export default function Chat({
       resetScroll();
     }
   }, [messages, shouldScroll, resetScroll]);
+
+  useEffect(() => {
+    if (!user) return;
+    const updateReadStatus = async () => {
+      try {
+        await chatApiRequest.markAllAdminMessagesRead();
+        fetchCountUnreadMessages();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    updateReadStatus();
+  }, [user]);
 
   return (
     <div className="w-full h-full flex flex-col bg-white">
@@ -107,8 +123,10 @@ export default function Chat({
                           </div>
                         )}
                         <p
-                          className={`w-fit p-2 px-4 rounded-md ${
-                            isSameRole ? "bg-black text-white" : "bg-gray-200"
+                          className={`max-w-full w-fit p-2 px-4 break-all ${
+                            isSameRole
+                              ? "bg-black text-white rounded-b-lg rounded-tl-lg rounded-tr-xs"
+                              : "bg-gray-200 rounded-b-lg rounded-tr-lg rounded-tl-xs"
                           }`}
                         >
                           {msg.message}

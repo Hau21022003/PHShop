@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -15,6 +17,7 @@ import { AdminGuard } from 'src/common/guards/admin.guard';
 import { getDownloadUrl } from 'src/common/helper/url.helper';
 import { ChatService } from 'src/modules/chat/chat.service';
 import { FindByUserDto } from 'src/modules/chat/dto/find-by-user.dto';
+import { Role } from 'src/modules/users/enums/role.enum';
 
 @Controller('chat')
 export class ChatController {
@@ -29,6 +32,34 @@ export class ChatController {
   @Post('by-user')
   findByUserId(@Body() query: FindByUserDto) {
     return this.chatService.findByUser(query, query.userId);
+  }
+
+  @Get('read-all/admin')
+  markAllAdminMessagesRead(@GetUser('sub') userId: string) {
+    return this.chatService.markAllAsRead(userId, Role.ADMIN);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('read-all/user/:userId')
+  markAllUserMessagesRead(@Param('userId') userId: string) {
+    return this.chatService.markAllAsRead(userId, Role.USER);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('conversations')
+  getConversations() {
+    return this.chatService.getConversations();
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('unread-count/user')
+  countUserUnreadMessages() {
+    return this.chatService.countUnreadMessages(Role.USER);
+  }
+
+  @Get('unread-count/admin')
+  countAdminUnreadMessages(@GetUser('sub') userId: string) {
+    return this.chatService.countUnreadMessages(Role.ADMIN, userId);
   }
 
   @Post('upload')

@@ -21,3 +21,24 @@ export type UploadImageRes = {
 };
 
 export type FindByUserBody = z.TypeOf<typeof FindByUserBodySchema>;
+
+export type Conversation = {
+  latestMessage: {
+    _id: string;
+    message: string;
+    fromRole: Role;
+    isRead: boolean;
+    createdAt: string;
+    images?: string[];
+  };
+  user: {
+    email: string;
+    fullName?: string;
+    _id: string;
+  };
+  unreadCount: number;
+};
+
+export type CountUnreadMessages = {
+  count: number;
+};

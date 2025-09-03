@@ -41,15 +41,15 @@ export function useChat() {
       addMessageToBottom(data);
     });
 
-    return () => {
-      socketService.disconnect();
-    };
+    // return () => {
+    //   socketService.disconnect();
+    // };
+    // Ham dọn dẹp
   }, []);
 
   const sendMessage = (message: SendMessageBody) => {
     const socket = socketService.getSocket();
     socket?.emit("send_message", message);
-    console.log("send", message);
   };
 
   const resetScroll = () => setShouldScroll(false);

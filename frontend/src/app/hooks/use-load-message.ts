@@ -60,8 +60,6 @@ export function useLoadMessage(
       );
       setPageMeta(newPageMeta);
 
-      // const reversed = messages.reverse();
-
       // Add từng message lên top
       messages.forEach((msg) => addMessageToTop(msg));
 
