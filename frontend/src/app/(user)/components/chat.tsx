@@ -123,7 +123,8 @@ export default function Chat({
                           </div>
                         )}
                         <p
-                          className={`max-w-full w-fit p-2 px-4 break-all ${
+                          style={{ overflowWrap: "anywhere" }}
+                          className={`max-w-full w-fit p-2 px-4 ${
                             isSameRole
                               ? "bg-black text-white rounded-b-lg rounded-tl-lg rounded-tr-xs"
                               : "bg-gray-200 rounded-b-lg rounded-tr-lg rounded-tl-xs"

@@ -298,4 +298,11 @@ export class ProductService {
 
     return updated;
   }
+
+  async getTopSaleProduct() {
+    return this.productModel
+      .findOne({ active: true }) // chỉ lấy sản phẩm đang active
+      .sort({ sold: -1 }) // sắp xếp giảm dần theo sold
+      .exec();
+  }
 }

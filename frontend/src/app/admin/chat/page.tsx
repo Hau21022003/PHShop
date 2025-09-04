@@ -16,6 +16,7 @@ export default function ChatPage() {
     if (userId) setSelectedUserId(userId);
     else setSelectedUserId(undefined);
   }, [searchParams]);
+
   return (
     <div className="w-full flex h-full">
       <div

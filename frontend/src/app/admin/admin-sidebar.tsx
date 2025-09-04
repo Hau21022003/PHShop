@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import {
   LogOut,
@@ -9,6 +8,7 @@ import {
   MessageCircleMore,
   StarHalf,
   Car,
+  Grid2x2,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -25,6 +25,12 @@ const AdminSidebar = () => {
   const onCloseFreeShipping = () => setOpenSaveFreeShipping(false);
 
   const MainMenuOptions = [
+    {
+      icon: <Grid2x2 className="w-6 h-6" />,
+      label: "Overview",
+      url: "/admin/overview",
+      active: pathname === "/admin/overview",
+    },
     {
       icon: <Package className="w-6 h-6" />,
       label: "Product",
@@ -61,18 +67,19 @@ const AdminSidebar = () => {
   ];
 
   const [countUnreadMessages, setCountUnreadMessages] = useState(0);
-  const fetchCountUnreadMessages = async () => {
-    try {
-      const count = (await chatApiRequest.countUserUnreadMessages()).payload
-        .count;
-      setCountUnreadMessages(count);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
   useEffect(() => {
+    const fetchCountUnreadMessages = async () => {
+      try {
+        const count = (await chatApiRequest.countUserUnreadMessages()).payload
+          .count;
+        setCountUnreadMessages(count);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        console.error(error);
+      }
+    };
     fetchCountUnreadMessages();
     const socket = socketService.connect();
 
@@ -182,7 +189,7 @@ const AdminSidebar = () => {
                   <Car className="w-6 h-6" />
                 </div>
                 <span className="font-medium text-gray-500 leading-none tracking-wide">
-                  Shipping Fee
+                  Free Ship
                 </span>
               </div>
             </button>

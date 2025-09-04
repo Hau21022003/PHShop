@@ -40,6 +40,18 @@ export class OrdersController {
     return this.ordersService.findAll(query, userId, role);
   }
 
+  @UseGuards(AdminGuard)
+  @Get('count')
+  countOrders() {
+    return this.ordersService.countOrders();
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('recent-order-days')
+  getRecentOrderDays() {
+    return this.ordersService.getRecentOrderDays();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(id);

@@ -34,12 +34,6 @@ export class OrdersService {
   ) {}
 
   async calcShippingFee(dto: ShippingFeeDto) {
-    // const url = '/services/shipment/fee'; // Thay URL API của bạn vào đây
-    // // const response = await firstValueFrom(this.httpService.get(url));
-    // const response = await this.httpService.get(url, {
-    //   headers: { 'Authorization': `Bearer YOUR_TOKEN` },
-    // });
-    // console.log(response)
     const freeShippingThreshold: number = await this.settingsService.get(
       SettingKey.FREE_SHIPPING,
     );
@@ -445,22 +439,6 @@ export class OrdersService {
     return this.mapContactDetails(order);
   }
 
-  // async markAsReviewed(orderId: string) {
-  //   const updated = await this.orderModel.findByIdAndUpdate(
-  //     orderId,
-  //     {
-  //       $set: { isReviewed: true },
-  //     },
-  //     { new: true },
-  //   );
-
-  //   if (!updated) {
-  //     throw new NotFoundException(`Order with id ${orderId} not found`);
-  //   }
-
-  //   return updated;
-  // }
-
   async markItemAsReviewed(orderId: string, productId: string) {
     const updated = await this.orderModel.findOneAndUpdate(
       { _id: orderId },
@@ -476,5 +454,42 @@ export class OrdersService {
     }
 
     return updated;
+  }
+
+  async getRecentOrderDays(limit = 10) {
+    return this.orderModel.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' },
+          },
+          orders: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { '_id.year': -1, '_id.month': -1, '_id.day': -1 },
+      },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 0,
+          date: {
+            $dateFromParts: {
+              year: '$_id.year',
+              month: '$_id.month',
+              day: '$_id.day',
+            },
+          },
+          orders: 1,
+        },
+      },
+    ]);
+  }
+
+  async countOrders() {
+    const count = await this.orderModel.countDocuments();
+    return { count };
   }
 }

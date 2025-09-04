@@ -10,7 +10,7 @@ export default function Home() {
     if (isLoading) return;
 
     if (user?.role === "admin") {
-      router.replace("/admin/product-list");
+      router.replace("/admin/overview");
       return;
     }
 
@@ -18,7 +18,7 @@ export default function Home() {
   }, [isLoading, isAuthenticated, user, router]);
 
   useEffect(() => {
-    router.prefetch("/admin/product-list");
+    router.prefetch("/admin/overview");
   }, [router]);
 
   return (

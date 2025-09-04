@@ -26,4 +26,5 @@ export const productApiRequest = {
     http.put(`/product/${id}/stock`, body),
   getProductDetail: (id: string) =>
     http.get<ProductDetailType>(`/product/${id}/product-detail`),
+  getTopSale: () => http.get<ProductResType>("/product/top-sale"),
 };

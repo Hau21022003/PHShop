@@ -66,6 +66,11 @@ export class ProductController {
     );
   }
 
+  @Get('top-sale')
+  async getTopSaleProduct() {
+    return this.productService.getTopSaleProduct();
+  }
+
   @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {

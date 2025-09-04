@@ -22,15 +22,18 @@ export default function MessageList({ messages }: { messages: Message[] }) {
             </span>
           </div>
 
-          <div className="max-w-full space-y-2">
-            {msgs.map((msg) => {
+          <div className="max-w-full">
+            {msgs.map((msg, idx) => {
               const isSameRole = msg.fromRole === Role.ADMIN;
+              const prevMsg = idx > 0 ? msgs[idx - 1] : null;
+              const isSameAsPrev = prevMsg?.fromRole === msg.fromRole;
               return (
                 <div
                   key={msg._id}
                   className={cn(
                     "w-full flex",
-                    isSameRole ? "justify-end" : "justify-start"
+                    isSameRole ? "justify-end" : "justify-start",
+                    isSameAsPrev ? "mt-1" : "mt-4"
                   )}
                 >
                   <div
@@ -57,7 +60,8 @@ export default function MessageList({ messages }: { messages: Message[] }) {
                       </div>
                     )}
                     <p
-                      className={`max-w-full w-fit p-2 px-4 break-all ${
+                      style={{ overflowWrap: "anywhere" }}
+                      className={`max-w-full w-fit p-2 px-4 ${
                         isSameRole
                           ? "bg-black text-white rounded-b-lg rounded-tl-lg rounded-tr-xs"
                           : "bg-white rounded-b-lg rounded-tr-lg rounded-tl-xs"

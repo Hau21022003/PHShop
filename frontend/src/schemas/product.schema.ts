@@ -76,6 +76,7 @@ export const ProductRes = ProductBody.extend({
   _id: z.string(),
   reviewCount: z.number().optional(),
   averageRating: z.number().optional(),
+  sold: z.number(),
 });
 export type ProductResType = z.TypeOf<typeof ProductRes>;
 

@@ -7,7 +7,12 @@ import {
   ShippingFeeResType,
   ShippingFeeType,
 } from "@/schemas/order.schema";
-import { CheckStockResType, SearchOrderBodyType } from "@/types/order.type";
+import {
+  CheckStockResType,
+  CountOrders,
+  OrderDayStat,
+  SearchOrderBodyType,
+} from "@/types/order.type";
 
 const BASE_URL = "/orders";
 export const orderApiRequest = {
@@ -34,4 +39,7 @@ export const orderApiRequest = {
     http.post<OrderResType>(`${BASE_URL}/search-order`, body),
   cancelOrderByUser: (orderId: string) =>
     http.get(`${BASE_URL}/${orderId}/cancel-by-user`),
+  getRecentOrderDays: () =>
+    http.get<OrderDayStat[]>(`${BASE_URL}/recent-order-days`),
+  countOrders: () => http.get<CountOrders>(`${BASE_URL}/count`),
 };
