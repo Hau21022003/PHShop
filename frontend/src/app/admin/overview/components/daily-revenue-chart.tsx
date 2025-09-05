@@ -119,10 +119,10 @@ export default function DailyRevenueChart({
                   return (
                     <text
                       x={Number(x) + Number(width) / 2}
-                      y={Number(y) + 20}
+                      y={isMobile ? Number(y) + 14 : Number(y) + 20}
                       textAnchor="middle"
                       fill="black"
-                      fontSize={14}
+                      fontSize={isMobile ? 10 : 14}
                     >
                       {formatNumber(value as number)}
                     </text>
