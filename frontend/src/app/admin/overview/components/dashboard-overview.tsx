@@ -1,81 +1,38 @@
 /* eslint-disable @next/next/no-img-element */
+import DailyRevenueArea from "@/app/admin/overview/components/daily-revenue-area";
 import OrderStatsChart from "@/app/admin/overview/components/order-stats-chart";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ProductResType } from "@/schemas/product.schema";
-import { OrderDayStat } from "@/types/order.type";
+import { DailyRevenue, OrderDayStat } from "@/types/order.type";
 import { formatNumber } from "@/utils/format-number";
-import { faAward, faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faAward } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 interface DashboardOverviewProps {
   topSaleProduct?: ProductResType;
   orderDayStats: OrderDayStat[];
   ordersCount: number;
+  dailyRevenues: DailyRevenue[];
+  selectedMonth: number;
+  updateMonth: (month: number) => void;
 }
 
 export default function DashboardOverview({
   topSaleProduct,
   orderDayStats,
   ordersCount,
+  dailyRevenues,
+  selectedMonth,
+  updateMonth,
 }: DashboardOverviewProps) {
   return (
     <div className="h-full flex flex-col gap-4 lg:flex-row lg:items-stretch overflow-hidden">
       {/* Overview dashboard */}
-      <div className="flex-2 flex flex-col px-2 py-4 rounded-3xl border-2 border-gray-200 bg-gray-50 space-y-4">
-        <div className="flex justify-between items-center">
-          {/* <p className="ml-2 text-lg font-stretch-200% font-medium">Overview</p> */}
-          <div className="flex items-center gap-4">
-            <div className="border-1 border-gray-300 rounded-lg bg-white w-10 h-10 flex items-center justify-center">
-              <FontAwesomeIcon
-                icon={faChartSimple}
-                size="xl"
-                className="w-6 h-6"
-              />
-            </div>
-            <p className="text-lg font-stretch-200% font-medium">Sales</p>
-          </div>
-          <Select
-            onValueChange={(value) => {
-              // value ở đây là string, parse ra number trước khi gửi
-              const month = parseInt(value, 10);
-              // sendFilter({ month });
-            }}
-          >
-            <SelectTrigger className="py-5 w-fit shrink-0 text-base border border-gray-300 rounded-xl">
-              <SelectValue placeholder="Select month" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {(() => {
-                  const now = new Date();
-                  const currentMonth = now.getMonth() + 1; // JS: 0-11
-                  return Array.from({ length: currentMonth }).map((_, idx) => {
-                    const monthNumber = idx + 1;
-                    const monthName = new Date(0, idx).toLocaleString("en-US", {
-                      month: "long",
-                    });
-                    return (
-                      <SelectItem
-                        key={monthNumber}
-                        value={monthNumber.toString()}
-                      >
-                        {monthName}
-                      </SelectItem>
-                    );
-                  });
-                })()}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-col gap-4"></div>
+      <div className="min-w-0 min-h-0 flex-2 flex flex-col gap-1 px-2 py-4 rounded-3xl border-2 border-gray-200 bg-gray-50">
+        <DailyRevenueArea
+          dailyRevenues={dailyRevenues}
+          selectedMonth={selectedMonth}
+          updateMonth={updateMonth}
+        />
       </div>
       {/* Top sale - order line */}
       <div className="flex-1 flex flex-col sm:flex-row md:items-stretch lg:flex-col gap-4">
@@ -93,7 +50,7 @@ export default function DashboardOverview({
               <div className="border-1 border-gray-300 rounded-lg bg-white w-10 h-10 flex items-center justify-center">
                 <FontAwesomeIcon icon={faAward} size="xl" className="w-6 h-6" />
               </div>
-              <p className="text-lg tracking-wide">Orders</p>
+              <p className="text-lg tracking-wide">Top Selling</p>
             </div>
             <p>{formatNumber(topSaleProduct?.sold || 0)} Sold</p>
           </div>
@@ -107,7 +64,9 @@ export default function DashboardOverview({
               </p>
               <img
                 src={
-                  topSaleProduct?.images.length ? topSaleProduct?.images[0] : ""
+                  topSaleProduct?.images.length
+                    ? topSaleProduct?.images[0]
+                    : undefined
                 }
                 alt=""
                 className="mt-2 w-32 aspect-square rounded-lg"

@@ -10,6 +10,7 @@ import {
 import {
   CheckStockResType,
   CountOrders,
+  DailyRevenue,
   OrderDayStat,
   SearchOrderBodyType,
 } from "@/types/order.type";
@@ -42,4 +43,6 @@ export const orderApiRequest = {
   getRecentOrderDays: () =>
     http.get<OrderDayStat[]>(`${BASE_URL}/recent-order-days`),
   countOrders: () => http.get<CountOrders>(`${BASE_URL}/count`),
+  getDailyRevenue: (month: number) =>
+    http.get<DailyRevenue[]>(`${BASE_URL}/revenue/daily?month=${month}`),
 };

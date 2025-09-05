@@ -492,4 +492,53 @@ export class OrdersService {
     const count = await this.orderModel.countDocuments();
     return { count };
   }
+
+  async getDailyRevenueOfMonth(month: number) {
+    const now = new Date();
+    const year = now.getFullYear();
+
+    // Nếu tháng là tháng hiện tại thì chỉ lấy đến ngày hôm nay
+    const isCurrentMonth = now.getMonth() + 1 === month;
+    const daysInMonth = isCurrentMonth
+      ? now.getDate()
+      : new Date(year, month, 0).getDate(); // tổng ngày của tháng đó
+
+    // Lấy dữ liệu group theo ngày
+    const stats = await this.orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(year, month - 1, 1),
+            $lt: new Date(year, month - 1, daysInMonth + 1),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { day: { $dayOfMonth: '$createdAt' } },
+          amount: { $sum: '$totalAmount' },
+        },
+      },
+      { $sort: { '_id.day': 1 } },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id.day',
+          amount: 1,
+        },
+      },
+    ]);
+
+    // Chuẩn hóa để đủ ngày (có ngày 0 orders thì amount = 0)
+    const result: { date: string; amount: number }[] = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const found = stats.find((s) => s.day === d);
+      result.push({
+        date: new Date(year, month - 1, d).toISOString().split('T')[0],
+        amount: found ? found.amount : 0,
+      });
+    }
+
+    return result;
+  }
 }

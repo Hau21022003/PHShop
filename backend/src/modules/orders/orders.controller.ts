@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Res,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -20,6 +21,7 @@ import { AdminGuard } from 'src/common/guards/admin.guard';
 import { Response } from 'express';
 import { ExcelHelper } from 'src/common/helper/excel.helper';
 import { SearchOrderDto } from 'src/modules/orders/dto/search-order.dto';
+import { GetDailyRevenueDto } from 'src/modules/orders/dto/get-daily-revenue.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -38,6 +40,12 @@ export class OrdersController {
     @GetUser('role') role: Role,
   ) {
     return this.ordersService.findAll(query, userId, role);
+  }
+
+  @Public()
+  @Get('revenue/daily')
+  async getDailyRevenue(@Query() query: GetDailyRevenueDto) {
+    return this.ordersService.getDailyRevenueOfMonth(query.month);
   }
 
   @UseGuards(AdminGuard)

@@ -14,3 +14,8 @@ export type OrderDayStat = {
 export type CountOrders = {
   count: number;
 };
+
+export type DailyRevenue = {
+  date: string;
+  amount: number;
+};

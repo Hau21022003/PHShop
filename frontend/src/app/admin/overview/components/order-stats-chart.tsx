@@ -40,7 +40,7 @@ export default function OrderStatsChart({
 
   return (
     <Fragment>
-      <div className="h-full shrink-0 flex flex-col justify-between space-y-4 lg:space-y-0">
+      <div className="shrink-0 flex flex-col justify-between space-y-4 lg:space-y-0">
         <div className="flex items-center gap-4">
           <div className="border-1 border-gray-300 rounded-lg bg-white w-10 h-10 flex items-center justify-center">
             <FontAwesomeIcon
@@ -52,7 +52,12 @@ export default function OrderStatsChart({
           <p className="text-lg tracking-wide">Orders</p>
         </div>
         <div className="space-y-2">
-          <p className="text-4xl font-medium">{formatNumber(ordersCount)}</p>
+          <div className="flex items-end gap-2">
+            <p className="text-4xl font-medium leading-none">
+              {formatNumber(ordersCount)}
+            </p>
+            <p className="text-base text-gray-500 leading-none mb-1">Total</p>
+          </div>
           <div className="flex gap-2 items-center">
             <div
               className={cn(
@@ -74,7 +79,7 @@ export default function OrderStatsChart({
           </div>
         </div>
       </div>
-      <div className="flex-1 h-full">
+      <div className="flex-1">
         <div className="w-full h-full flex flex-col justify-end">
           <ChartContainer config={chartConfig}>
             <LineChart
