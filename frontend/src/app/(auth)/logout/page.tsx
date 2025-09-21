@@ -1,18 +1,20 @@
 "use client";
 
 import authApiRequest from "@/api-requests/auth";
-import { useAppContext } from "@/app/app-provider";
 import { authStorage } from "@/lib/auth/auth-storage";
+import { socketService } from "@/lib/socket";
+import { useAppStore } from "@/stores/app-store";
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
 function LogoutLogic() {
   const router = useRouter();
   const pathname = usePathname();
-  const { setUser } = useAppContext();
+  const { setUser } = useAppStore();
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
+    socketService.disconnect();
 
     authApiRequest
       .logoutFromNextClientToNextServer(true, signal)

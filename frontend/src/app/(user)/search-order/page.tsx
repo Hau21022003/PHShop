@@ -3,10 +3,10 @@ import { orderApiRequest } from "@/api-requests/order";
 import OrderView from "@/app/(user)/components/order-view";
 import SearchContainer from "@/app/(user)/search-order/components/search-container";
 import SearchContainer2 from "@/app/(user)/search-order/components/search-container-2";
-import { useAppContext } from "@/app/app-provider";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
 import { handleErrorApi } from "@/lib/error";
 import { OrderResType, searchOrderBody } from "@/schemas/order.schema";
+import { useAppStore } from "@/stores/app-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -17,7 +17,7 @@ export default function SearchOrderPage() {
     resolver: zodResolver(searchOrderBody),
     defaultValues: {},
   });
-  const { user } = useAppContext();
+  const { user } = useAppStore();
   const fetchOrder = async () => {
     try {
       showLoading();

@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingBag, faHeadset } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAppContext } from "@/app/app-provider";
 import { Gender } from "@/schemas/product.schema";
 import { useUserContext } from "@/app/(user)/user-provider";
 import {
@@ -20,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useAppStore } from "@/stores/app-store";
 
 export default function UserHeader({
   handleOpenChat,
@@ -27,7 +27,7 @@ export default function UserHeader({
   handleOpenChat: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { isAuthenticated } = useAppContext();
+  const { isAuthenticated } = useAppStore();
   const { cart, countUnreadMessages } = useUserContext();
 
   const menuItems = [

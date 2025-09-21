@@ -1,10 +1,10 @@
 "use client";
 import { chatApiRequest } from "@/api-requests/chat";
-import { useAppContext } from "@/app/app-provider";
 import { handleErrorApi } from "@/lib/error";
 import { socketService } from "@/lib/socket";
 import { cartService } from "@/lib/user/cart/cart-service";
 import { CartItemResType } from "@/schemas/cart.schema";
+import { useAppStore } from "@/stores/app-store";
 import {
   createContext,
   useCallback,
@@ -35,7 +35,7 @@ export const useUserContext = () => useContext(UserContext);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated } = useAppContext();
+  const { isAuthenticated } = useAppStore();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [cart, setCartState] = useState<CartItemResType[]>([]);
   const [countUnreadMessages, setCountUnreadMessages] = useState(0);

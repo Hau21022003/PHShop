@@ -163,6 +163,28 @@ export default function VariantContainer({ form }: VariantContainerProps) {
     return createCombinations(0, []);
   }
 
+  const handleOpenDialog = (mode?: "open" | "edit", editIndex?: number) => {
+    setVariantDialogState({
+      open: true,
+      isEdit: mode === "edit",
+      editIndex: editIndex,
+    });
+    if (mode === "edit" && editIndex !== undefined) {
+      const variant = variantList[editIndex];
+      variantForm.reset(variant);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setVariantDialogState({ open: false, isEdit: false, editIndex: undefined });
+    variantForm.reset({
+      title: "",
+      enableImage: false,
+      options: [{ option: "" }],
+    });
+    setAddImageDialogState({ open: false, optionIndex: -1 });
+  };
+
   const saveVariant = (data: VariantType) => {
     let newVariantList = [];
     if (
@@ -174,6 +196,7 @@ export default function VariantContainer({ form }: VariantContainerProps) {
     } else {
       newVariantList = [...variantList, data];
     }
+
     variantStructureReplace(newVariantList);
 
     const variantCombinations = generateVariantCombinations(newVariantList);
@@ -189,29 +212,12 @@ export default function VariantContainer({ form }: VariantContainerProps) {
     handleCloseDialog();
   };
 
-  const handleOpenDialog = (mode?: "open" | "edit", editIndex?: number) => {
-    setVariantDialogState({ open: true, isEdit: mode === "edit", editIndex });
-    if (mode == "edit" && editIndex !== undefined) {
-      const variant = variantList[editIndex];
-      variantForm.reset(variant);
-    }
-  };
-
-  const handleCloseDialog = () => {
-    setVariantDialogState({ open: false, isEdit: false });
-    variantForm.reset({
-      title: "",
-      options: [{ option: "" }],
-    });
-  };
-
   const removeVariant = (index: number) => {
     const newVariantList = variantList.filter((_, i) => i !== index);
     setVariantList(newVariantList);
     variantStructureReplace(newVariantList);
 
     const variantCombinations = generateVariantCombinations(newVariantList);
-    // console.log("variantCombinations", variantCombinations);
     const newFormVariants: ProductBodyType["variants"] =
       variantCombinations.map((item) => ({
         attributes: item,
@@ -262,13 +268,6 @@ export default function VariantContainer({ form }: VariantContainerProps) {
                             src={option.image}
                             alt=""
                           />
-                          // <div className="relative w-10 h-10">
-                          //   <img
-                          //     className="w-full h-full rounded-md object-cover"
-                          //     src={option.image}
-                          //     alt=""
-                          //   />
-                          // </div>
                         )}
                         <p className="px-1">{option.option}</p>
                       </div>
@@ -276,13 +275,15 @@ export default function VariantContainer({ form }: VariantContainerProps) {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
-                      {/* <div className="cursor-pointer p-[10px] rounded-md border-2 border-gray-300"> */}
                       <EllipsisVertical className="mt-[6px] w-5 h-5 text-gray-500 cursor-pointer" />
-                      {/* </div> */}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem
-                        onClick={() => handleOpenDialog("edit", index)}
+                        onClick={() => {
+                          setTimeout(() => {
+                            handleOpenDialog("edit", index);
+                          }, 0);
+                        }}
                       >
                         Edit
                       </DropdownMenuItem>
@@ -311,40 +312,9 @@ export default function VariantContainer({ form }: VariantContainerProps) {
             </TableHeader>
             <TableBody className="text-base">
               {variantFields.map((field, index) => {
-                const image = watch(`variants.${index}.image`);
                 return (
                   <TableRow key={field.id}>
                     <TableCell className="flex items-center gap-2 text-black">
-                      {/* Input image */}
-                      {/* <button
-                      type="button"
-                      className="cursor-pointer relative group"
-                      // onClick={() => fileInputRef.current?.click()}
-                      onClick={() =>
-                        setAddImageDialogState({
-                          open: true,
-                          optionIndex: index,
-                        })
-                      }
-                    >
-                      {image && (
-                        <div className="relative w-10 h-10">
-                          <img
-                            className="w-full h-full rounded-md object-cover"
-                            src={image}
-                            alt=""
-                          />
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                            <ImagePlus className="w-6 h-6 text-white" />
-                          </div>
-                        </div>
-                      )}
-                      {!image && (
-                        <div className="w-10 h-10 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-md">
-                          <ImagePlus className="w-6 h-6 text-gray-400" />
-                        </div>
-                      )}
-                    </button> */}
                       <p>
                         {field.attributes.reduce((sum, item, index) => {
                           if (index === 0) return sum + item.option;
@@ -517,7 +487,14 @@ export default function VariantContainer({ form }: VariantContainerProps) {
               })}
 
               <div className="mt-4 flex justify-end">
-                <button className="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium text-sm">
+                <button
+                  type="submit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    variantForm.handleSubmit(saveVariant)(e);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium text-sm"
+                >
                   Submit
                 </button>
               </div>

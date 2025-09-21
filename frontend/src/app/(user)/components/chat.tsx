@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { useAppContext } from "@/app/app-provider";
 import { useChat } from "@/app/hooks/use-chat";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
@@ -15,13 +14,14 @@ import { useLoadMessage } from "@/app/hooks/use-load-message";
 import { Role } from "@/enums/user.enum";
 import { chatApiRequest } from "@/api-requests/chat";
 import { useUserContext } from "@/app/(user)/user-provider";
+import { useAppStore } from "@/stores/app-store";
 
 export default function Chat({
   handleCloseChat,
 }: {
   handleCloseChat: () => void;
 }) {
-  const { user } = useAppContext();
+  const { user } = useAppStore();
   const { fetchCountUnreadMessages } = useUserContext();
   const { messages, sendMessage, addMessageToTop, resetScroll, shouldScroll } =
     useChat();

@@ -41,8 +41,13 @@ const request = async <Response>(
           "Content-Type": "application/json",
         };
   if (isClient()) {
-    // const sessionToken = localStorage.getItem("sessionToken");
     const sessionToken = authStorage.getSessionToken()?.sessionToken;
+    if (sessionToken) {
+      baseHeaders.Authorization = `Bearer ${sessionToken}`;
+    }
+  } else {
+    const { cookies } = await import("next/headers");
+    const sessionToken = (await cookies()).get("sessionToken")?.value;
     if (sessionToken) {
       baseHeaders.Authorization = `Bearer ${sessionToken}`;
     }
@@ -69,13 +74,8 @@ const request = async <Response>(
     body,
     method,
   });
-  // const payload: Response = await res.json();
-  // const data = {
-  //   status: res.status,
-  //   payload,
-  // };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let payload: any;
+
+  let payload;
   if (options?.responseType === "blob") {
     payload = await res.blob();
   } else if (options?.responseType === "text") {
@@ -116,8 +116,6 @@ const request = async <Response>(
             await clientLogoutRequest;
           } catch {
           } finally {
-            // localStorage.removeItem("sessionToken");
-            // localStorage.removeItem("sessionTokenExpiresAt");
             authStorage.clear();
             clientLogoutRequest = null;
             location.href = "/login";
@@ -137,17 +135,15 @@ const request = async <Response>(
   }
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient()) {
-    if (["auth/signin", "auth/signup"].some((item) => item === normalizePath(url))) {
+    if (
+      ["auth/signin", "auth/signup"].some((item) => item === normalizePath(url))
+    ) {
       const { accessToken, accessTokenExpiresAt } = payload as LoginResType;
-      // localStorage.setItem("sessionToken", accessToken);
-      // localStorage.setItem("sessionTokenExpiresAt", accessTokenExpiresAt);
       authStorage.saveSessionToken({
         sessionToken: accessToken,
         expiresAt: accessTokenExpiresAt,
       });
     } else if ("auth/logout" === normalizePath(url)) {
-      // localStorage.removeItem("sessionToken");
-      // localStorage.removeItem("sessionTokenExpiresAt");
       localStorage.clear();
     }
   }

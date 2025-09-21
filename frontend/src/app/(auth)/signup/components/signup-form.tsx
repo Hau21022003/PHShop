@@ -20,16 +20,16 @@ import authApiRequest from "@/api-requests/auth";
 import { handleErrorApi } from "@/lib/error";
 import { cartApiRequest } from "@/api-requests/cart";
 import { cartStorage } from "@/lib/user/cart/cart-storage";
-import { useAppContext } from "@/app/app-provider";
 import { CartItemBodyType } from "@/schemas/cart.schema";
 import { contactDetailsStorage } from "@/lib/user/contact-details/contact-detail-storage";
 import { contactDetailsService } from "@/lib/user/contact-details/contact-detail-service";
+import { useAppStore } from "@/stores/app-store";
 
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { setUser } = useAppContext();
+  const { setUser } = useAppStore();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 

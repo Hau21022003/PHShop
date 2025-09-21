@@ -1,9 +1,9 @@
 "use client";
 import { UserProvider, useUserContext } from "@/app/(user)/user-provider";
 import UserHeader from "@/app/(user)/header";
-import { useAppContext } from "@/app/app-provider";
 import Chat from "@/app/(user)/components/chat";
 import { useState } from "react";
+import { useAppStore } from "@/stores/app-store";
 export default function UserLayout({
   children,
 }: {
@@ -18,7 +18,7 @@ export default function UserLayout({
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { scrollRef } = useUserContext();
-  const { isAuthenticated } = useAppContext();
+  const { isAuthenticated } = useAppStore();
   const [isOpenChat, setIsOpenChat] = useState(false);
   const handleOpenChat = () => setIsOpenChat(true);
   const handleCloseChat = () => setIsOpenChat(false);

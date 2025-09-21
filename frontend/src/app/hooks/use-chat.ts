@@ -30,11 +30,20 @@ export function useChat() {
     const socket = socketService.connect();
 
     socket.on("receive_message", (data: Message) => {
-      addMessageToBottom(data);
+      const match =
+        messages.length !== 0 ? messages[0].user === data.user : true;
+      if (match) {
+        addMessageToBottom(data);
+      }
     });
 
-    socket.on("admin_message", (data) => {
-      addMessageToBottom(data);
+    socket.on("admin_message", (data: Message) => {
+      // addMessageToBottom(data);
+      const match =
+        messages.length !== 0 ? messages[0].user === data.user : true;
+      if (match) {
+        addMessageToBottom(data);
+      }
     });
 
     socket.on("message_confirmed", (data) => {

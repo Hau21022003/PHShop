@@ -4,7 +4,6 @@ import OrderView from "@/app/(user)/components/order-view";
 import CreateReviewDialog from "@/app/(user)/orders/components/create-review-dialog";
 import StatusTabs from "@/app/(user)/orders/components/status-tabs";
 import { useUserContext } from "@/app/(user)/user-provider";
-import { useAppContext } from "@/app/app-provider";
 import { closeLoading, showLoading } from "@/components/loading-overlay";
 import { handleErrorApi } from "@/lib/error";
 import { defaultPageMeta, PageMetaType } from "@/schemas/common.schema";
@@ -14,6 +13,7 @@ import {
   StatusOrders,
   SummaryResType,
 } from "@/schemas/order.schema";
+import { useAppStore } from "@/stores/app-store";
 import { buildPaginatedMeta } from "@/utils/pagination";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -30,7 +30,7 @@ export default function OrdersPage() {
   const [orderSummary, setOrderSummary] = useState<SummaryResType>();
   const searchParams = useSearchParams();
   const { scrollRef } = useUserContext();
-  const { user } = useAppContext();
+  const { user } = useAppStore();
   const findAllForm = useForm({
     resolver: zodResolver(FindAllBody),
     defaultValues: {},

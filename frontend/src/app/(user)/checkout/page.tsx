@@ -3,7 +3,6 @@ import { orderApiRequest } from "@/api-requests/order";
 import ContactDetail from "@/app/(user)/checkout/components/contact-detail";
 import OrderSummary from "@/app/(user)/checkout/components/order-summary";
 import { useUserContext } from "@/app/(user)/user-provider";
-import { useAppContext } from "@/app/app-provider";
 import { Form } from "@/components/ui/form";
 import { handleErrorApi } from "@/lib/error";
 import { cartService } from "@/lib/user/cart/cart-service";
@@ -14,6 +13,7 @@ import {
   CreateOrderType,
   OrderItemType,
 } from "@/schemas/order.schema";
+import { useAppStore } from "@/stores/app-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ export default function CheckoutPage() {
   const { loadCart } = useUserContext();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAppContext();
+  const { user } = useAppStore();
   const form = useForm({
     resolver: zodResolver(CreateOrderSchema),
     defaultValues: { items: [], user: user?._id },

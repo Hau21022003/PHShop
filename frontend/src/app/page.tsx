@@ -1,9 +1,9 @@
 "use client";
-import { useAppContext } from "@/app/app-provider";
+import { useAppStore } from "@/stores/app-store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 export default function Home() {
-  const { user, isAuthenticated, isLoading } = useAppContext();
+  const { user, isAuthenticated, isLoading } = useAppStore();
   const router = useRouter();
 
   useEffect(() => {

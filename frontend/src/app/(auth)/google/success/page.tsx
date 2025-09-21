@@ -2,17 +2,17 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { userApiRequest } from "@/api-requests/user";
-import { useAppContext } from "@/app/app-provider";
 import { CartItemBodyType } from "@/schemas/cart.schema";
 import { cartStorage } from "@/lib/user/cart/cart-storage";
 import { cartApiRequest } from "@/api-requests/cart";
 import { handleErrorApi } from "@/lib/error";
 import { authStorage } from "@/lib/auth/auth-storage";
 import authApiRequest from "@/api-requests/auth";
+import { useAppStore } from "@/stores/app-store";
 
 export default function GoogleSuccessPage() {
   const router = useRouter();
-  const { setUser } = useAppContext();
+  const { setUser } = useAppStore();
 
   const syncCartOnSignup = async () => {
     try {

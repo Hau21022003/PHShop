@@ -17,14 +17,14 @@ import { LoginBody, LoginBodyType } from "@/schemas/auth.schema";
 import Image from "next/image";
 import authApiRequest from "@/api-requests/auth";
 import { toast } from "sonner";
-import { useAppContext } from "@/app/app-provider";
 import { useRouter } from "next/navigation";
 import { handleErrorApi } from "@/lib/error";
+import { useAppStore } from "@/stores/app-store";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { setUser } = useAppContext();
+  const { setUser } = useAppStore();
   const router = useRouter();
 
   const form = useForm({

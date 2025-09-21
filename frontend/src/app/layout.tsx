@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import AppProvider from "@/app/app-provider";
 import SlideSession from "@/components/slide-session";
 import ImageViewer from "@/components/image-viewer";
 import LoadingOverlay from "@/components/loading-overlay";
+import StoreInitializer from "@/app/store-initializer";
 
 const roboto = Roboto({ subsets: ["vietnamese"] });
 
@@ -30,10 +30,11 @@ export default function RootLayout({
         <ImageViewer />
         <LoadingOverlay />
         {/* {children} */}
-        <AppProvider>
-          {children}
-          <SlideSession />
-        </AppProvider>
+        {/* <AppProvider> */}
+        {children}
+        <SlideSession />
+        {/* </AppProvider> */}
+        <StoreInitializer />
       </body>
     </html>
   );
