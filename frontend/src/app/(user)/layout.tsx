@@ -32,7 +32,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
-      {isAuthenticated && isOpenChat && (
+      {isAuthenticated() && isOpenChat && (
         <div className="w-[100%] h-[100%] sm:w-100 sm:h-130 absolute bottom-0 sm:right-15 shadow shadow-gray-300 bg-white">
           <Chat handleCloseChat={handleCloseChat} />
         </div>

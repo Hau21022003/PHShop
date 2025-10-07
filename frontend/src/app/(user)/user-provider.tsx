@@ -73,7 +73,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated()) {
       fetchCountUnreadMessages();
       const socket = socketService.connect();
 

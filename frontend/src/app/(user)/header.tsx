@@ -129,7 +129,7 @@ export default function UserHeader({
           >
             <Package className="w-6 h-6" />
           </Link>
-          {isAuthenticated && (
+          {isAuthenticated() && (
             <div className="flex flex-col items-center cursor-pointer">
               <div className="relative">
                 <FontAwesomeIcon
@@ -148,7 +148,7 @@ export default function UserHeader({
           )}
 
           {/* Profile icon */}
-          {!isAuthenticated && (
+          {!isAuthenticated() && (
             <Link
               href="/login"
               className="flex flex-col items-center cursor-pointer"
@@ -157,7 +157,7 @@ export default function UserHeader({
             </Link>
           )}
 
-          {isAuthenticated && (
+          {isAuthenticated() && (
             <Popover>
               <PopoverTrigger>
                 <div className="flex flex-col items-center cursor-pointer">

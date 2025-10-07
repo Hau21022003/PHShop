@@ -17,7 +17,7 @@ export async function POST() {
     const res = await authApiRequest.slideSessionFromNextServerToServer(
       sessionToken.value
     )
-    const newExpiresDate = new Date(res.payload.data.expiresAt).toUTCString()
+    const newExpiresDate = new Date(res.payload.accessTokenExpiresAt).toUTCString()
     return Response.json(res.payload, {
       status: 200,
       headers: {
