@@ -14,7 +14,7 @@ export class AppService {
   );
   constructor(private readonly productService: ProductService) {}
 
-  @Cron('0 0 * * *') // Oh
+  // @Cron('0 0 * * *') // Oh
   // @Cron('* * * * *')
   async handleCleanup() {
     this.logger.log('Bắt đầu dọn dẹp ảnh không sử dụng...');

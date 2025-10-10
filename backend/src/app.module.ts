@@ -1,6 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -28,7 +28,14 @@ import { UsersModule } from 'src/modules/users/users.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot(mongooseConfig.uri),
+    // MongooseModule.forRoot(mongooseConfig.uri),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_URI'),
+      }),
+    }),
     UsersModule,
     AuthModule,
     CategoryModule,
